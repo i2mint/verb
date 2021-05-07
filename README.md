@@ -10,19 +10,14 @@ To install:	```pip install verb```
 
 
 ```python
-from pprint import pprint
-from functools import partial
-import json
-import operator as o
 from verb import *
-from lined import Pipe  # lined is installed with verb
-
-print_jdict = Pipe(partial(json.dumps, indent=2), print)
 ```
+
+In a nutshell, you make a str-to-func mapping (or use the default)
 
 
 ```python
-# In a nutshell, you make a str-to-func mapping (or use the default)
+import operator as o
 
 func_of_op_str = {  # Note: Order represents precedence!
     '-': o.sub,
@@ -33,7 +28,7 @@ func_of_op_str = {  # Note: Order represents precedence!
 
 # You give it a command string
 
-command_str = '1 + 2 - 3 * 4 / 5'
+command_str = '1 + 2 - 3 * 4 / 8'
 command = Command(command_str, func_of_op_str)
 
 # You execute the command
@@ -42,8 +37,29 @@ command()
 
 
 
+    1.5
 
-    0.5999999999999996
+
+
+You give it a command string
+
+
+```python
+command_str = '1 + 2 - 3 * 4 / 8'
+command = Command(command_str, func_of_op_str)
+```
+
+You execute the command
+
+
+```python
+command()
+```
+
+
+
+
+    1.5
 
 
 
@@ -58,13 +74,20 @@ d
 
 
 
-    {'-': ({'+': (1, 2)}, {'*': (3, {'/': (4, 5)})})}
+    {'-': ({'+': (1, 2)}, {'*': (3, {'/': (4, 8)})})}
 
 
 
 
 ```python
 # Or if you read better with indents
+
+from functools import partial
+import json
+from lined import Pipe
+
+print_jdict = Pipe(partial(json.dumps, indent=2), print)  # Note: Only works if your dict is JSON-izable. 
+
 print_jdict(d)
 ```
 
@@ -82,7 +105,7 @@ print_jdict(d)
             {
               "/": [
                 4,
-                5
+                8
               ]
             }
           ]
@@ -102,7 +125,7 @@ command()
 
 
 
-    0.5999999999999996
+    1.5
 
 
 
@@ -406,4 +429,3 @@ run_command('source == audio & tt <= 8')
   </tbody>
 </table>
 </div>
-
