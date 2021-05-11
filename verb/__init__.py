@@ -80,9 +80,11 @@ no_default = type('no_default', (), {})()
 
 
 def transform_if_possible(
-        x: Any,
-        funcs: Iterable[Callable],
-        pass_on_exceptions: Union[BaseException, Iterable[BaseException]] = Exception
+    x: Any,
+    funcs: Iterable[Callable],
+    pass_on_exceptions: Union[
+        BaseException, Iterable[BaseException]
+    ] = Exception,
 ):
     """Will try to apply the functions of funcs one by one, returning the value if no errors occur,
     returning x as is if none of the functions  work
@@ -100,13 +102,13 @@ str_to_basic_pyobj = partial(
     funcs=[
         int,
         float,
-        {'True': True, 'False': False, 'None': None}.__getitem__
-    ])
-str_to_basic_pyobj.__doc__ = (
-    "Casts to int or float if possible, True or False or None if the (string) 'True' or 'False', if not, explodes"
+        {'True': True, 'False': False, 'None': None}.__getitem__,
+    ],
 )
-assert list(map(str_to_basic_pyobj, ['3.14', '3', 'True', 'False', 'something else'])) == [
-    3.14, 3, True, False, 'something else']
+str_to_basic_pyobj.__doc__ = "Casts to int or float if possible, True or False or None if the (string) 'True' or 'False', if not, explodes"
+assert list(
+    map(str_to_basic_pyobj, ['3.14', '3', 'True', 'False', 'something else'])
+) == [3.14, 3, True, False, 'something else']
 
 dflt_leaf_processor = P(str.strip, str_to_basic_pyobj)
 
@@ -218,8 +220,9 @@ class Command:
         if func_of_key is not None:
             func = func_of_key.get(func, func)
         assert isinstance(func, Callable), (
-            f"Your func must be callable. "
-            f"Was {func}. Perhaps you meant to specify a func_of_key map from string to func?")
+            f'Your func must be callable. '
+            f'Was {func}. Perhaps you meant to specify a func_of_key map from string to func?'
+        )
 
         def gen():
             for arg in args:
@@ -233,18 +236,19 @@ class Command:
 
     @classmethod
     def from_string(
-            cls,
-            string: str,
-            func_of_op_str=dflt_func_of_op_str,
-            str_preprocessor=str.strip,
-            leaf_processor=str_to_basic_pyobj
+        cls,
+        string: str,
+        func_of_op_str=dflt_func_of_op_str,
+        str_preprocessor=str.strip,
+        leaf_processor=str_to_basic_pyobj,
     ):
         string = str_preprocessor(string)
-        parser = partial(Command.from_string,
-                         func_of_op_str=func_of_op_str,
-                         str_preprocessor=str_preprocessor,
-                         leaf_processor=leaf_processor
-                         )
+        parser = partial(
+            Command.from_string,
+            func_of_op_str=func_of_op_str,
+            str_preprocessor=str_preprocessor,
+            leaf_processor=leaf_processor,
+        )
         for sep, func in func_of_op_str.items():
             parts = list(filter(str_preprocessor, string.split(sep)))
             if len(parts) > 1:
@@ -252,23 +256,29 @@ class Command:
         return Command(identity, leaf_processor(string))
 
     def __repr__(self):
-        func_name = getattr(self.func, '_name', getattr(
-            self.func, '__nane__', repr(self.func)))
+        func_name = getattr(
+            self.func, '_name', getattr(self.func, '__nane__', repr(self.func))
+        )
         if isinstance(self.args, Iterable):
             args_str = ', '.join(map(repr, self.args))
         else:
             args_str = self.args
-        return f"{{{func_name}: [{args_str}]}}"
+        return f'{{{func_name}: [{args_str}]}}'
 
     @staticmethod
-    def parse_to_dict(string, func_of_op_str=dflt_func_of_op_str, str_preprocessor=str.strip,
-                      leaf_processor=str_to_basic_pyobj):
+    def parse_to_dict(
+        string,
+        func_of_op_str=dflt_func_of_op_str,
+        str_preprocessor=str.strip,
+        leaf_processor=str_to_basic_pyobj,
+    ):
         string = str_preprocessor(string)
-        parser = partial(Command.parse_to_dict,
-                         func_of_op_str=func_of_op_str,
-                         str_preprocessor=str_preprocessor,
-                         leaf_processor=leaf_processor
-                         )
+        parser = partial(
+            Command.parse_to_dict,
+            func_of_op_str=func_of_op_str,
+            str_preprocessor=str_preprocessor,
+            leaf_processor=leaf_processor,
+        )
         for sep, func in func_of_op_str.items():
             parts = list(filter(str_preprocessor, string.split(sep)))
             if len(parts) > 1:

@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>verb &#8212; verb 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Welcome to verb’s documentation!" href="../index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-verb">
+<span id="verb"></span><h1>verb<a class="headerlink" href="#module-verb" title="Permalink to this headline">¶</a></h1>
+<p>Tools to make mini-languages</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">operator</span> <span class="k">as</span> <span class="nn">o</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">verb</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+<p>In a nutshell, you make a str-to-func mapping (or use the default)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">func_of_op_str</span> <span class="o">=</span> <span class="p">{</span>  <span class="c1"># Note: Order represents precedence!</span>
+<span class="gp">... </span>    <span class="s1">&#39;-&#39;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">sub</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;+&#39;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">add</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;*&#39;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">mul</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;/&#39;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">truediv</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>You give it a command string</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">command_str</span> <span class="o">=</span> <span class="s1">&#39;1 + 2 - 3 * 4 / 8&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">command</span> <span class="o">=</span> <span class="n">Command</span><span class="p">(</span><span class="n">command_str</span><span class="p">,</span> <span class="n">func_of_op_str</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You execute the command</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">command</span><span class="p">()</span>
+<span class="go">1.5</span>
+</pre></div>
+</div>
+<p>It may be useful to see what the operation structure looks like</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span>
+<span class="go">{&#39;-&#39;: ({&#39;+&#39;: (1, 2)}, {&#39;*&#39;: (3, {&#39;/&#39;: (4, 8)})})}</span>
+</pre></div>
+</div>
+<p>Or if you read better with indents</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">lined</span> <span class="kn">import</span> <span class="n">Pipe</span><span class="p">;</span> <span class="kn">import</span> <span class="nn">json</span><span class="p">;</span> <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">print_jdict</span> <span class="o">=</span> <span class="n">Pipe</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="nb">print</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">print_jdict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<span class="go">{</span>
+<span class="go">  &quot;-&quot;: [</span>
+<span class="go">    {</span>
+<span class="go">      &quot;+&quot;: [</span>
+<span class="go">        1,</span>
+<span class="go">        2</span>
+<span class="go">      ]</span>
+<span class="go">    },</span>
+<span class="go">    {</span>
+<span class="go">      &quot;*&quot;: [</span>
+<span class="go">        3,</span>
+<span class="go">        {</span>
+<span class="go">          &quot;/&quot;: [</span>
+<span class="go">            4,</span>
+<span class="go">            8</span>
+<span class="go">          ]</span>
+<span class="go">        }</span>
+<span class="go">      ]</span>
+<span class="go">    }</span>
+<span class="go">  ]</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+<p>That same dict can be used as a parameter to make the same command</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">command</span> <span class="o">=</span> <span class="n">Command</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">func_of_op_str</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">command</span><span class="p">()</span>
+<span class="go">1.5</span>
+</pre></div>
+</div>
+<dl class="py class">
+<dt id="verb.Command">
+<em class="property">class </em><code class="sig-prename descclassname">verb.</code><code class="sig-name descname">Command</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/verb.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#verb.Command" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="verb.Command.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span><span class="p">:</span> <span class="n">dict</span></em>, <em class="sig-param"><span class="n">func_of_key</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>dict<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/verb.html#Command.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#verb.Command.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a command from a dict specification
+If func_of_key is not given, the keys</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">Command</span><span class="o">.</span><span class="n">parse_to_dict</span><span class="p">(</span><span class="s1">&#39;machine == crane &amp; rpm &gt;= 3 &amp; pressure &lt; 21.2&#39;</span><span class="p">,</span> <span class="n">dflt_func_of_op_str</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span>
+<span class="gp">... </span>   <span class="p">{</span><span class="s1">&#39;&amp;&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;==&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;machine&#39;</span><span class="p">,</span> <span class="s1">&#39;crane&#39;</span><span class="p">]},</span>
+<span class="gp">... </span>          <span class="p">{</span><span class="s1">&#39;&gt;=&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;rpm&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">]},</span>
+<span class="gp">... </span>          <span class="p">{</span><span class="s1">&#39;&lt;&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;pressure&#39;</span><span class="p">,</span> <span class="mf">21.2</span><span class="p">]}]}</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="verb.str_to_basic_pyobj">
+<code class="sig-prename descclassname">verb.</code><code class="sig-name descname">str_to_basic_pyobj</code><span class="sig-paren">(</span><em class="sig-param">x: Any, *, funcs: Iterable[Callable] = [&lt;class 'int'&gt;, &lt;class 'float'&gt;, &lt;built-in method __getitem__ of dict object&gt;], pass_on_exceptions: Union[BaseException, Iterable[BaseException]] = &lt;class 'Exception'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#verb.str_to_basic_pyobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Casts to int or float if possible, True or False or None if the (string) ‘True’ or ‘False’, if not, explodes</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="verb.transform_if_possible">
+<code class="sig-prename descclassname">verb.</code><code class="sig-name descname">transform_if_possible</code><span class="sig-paren">(</span><em class="sig-param">x: Any, funcs: Iterable[Callable], pass_on_exceptions: Union[BaseException, Iterable[BaseException]] = &lt;class 'Exception'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/verb.html#transform_if_possible"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#verb.transform_if_possible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Will try to apply the functions of funcs one by one, returning the value if no errors occur,
+returning x as is if none of the functions  work</p>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">verb</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">verb</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../index.html" title="previous chapter">Welcome to verb’s documentation!</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;NO COPYRIGHT.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/module_docs/verb.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
