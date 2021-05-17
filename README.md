@@ -158,8 +158,8 @@ def mk_table_selector(
 
     def leaf_processor(x):
         x = str_to_basic_pyobj(x)
-        if x in df:
-            return df[x]
+        if x in table:
+            return table[x]
         return x
 
     run_command = Pipe(
@@ -169,7 +169,7 @@ def mk_table_selector(
             leaf_processor=leaf_processor
         ),
         lambda f: f(),
-        lambda idx: df[idx],
+        lambda idx: table[idx],
     )
 
     return run_command
