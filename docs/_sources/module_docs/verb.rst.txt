@@ -1,0 +1,4 @@
+verb
+====
+.. automodule:: verb
+   :members:
