@@ -76,13 +76,15 @@ from lined.tools import expanded_args
 
 PI = P(P, I)  # you like? Well, too bad! I think it's cute and useful!
 
-no_default = type("no_default", (), {})()
+no_default = type('no_default', (), {})()
 
 
 def transform_if_possible(
     x: Any,
     funcs: Iterable[Callable],
-    pass_on_exceptions: Union[BaseException, Iterable[BaseException]] = Exception,
+    pass_on_exceptions: Union[
+        BaseException, Iterable[BaseException]
+    ] = Exception,
 ):
     """Will try to apply the functions of funcs one by one, returning the value if no errors occur,
     returning x as is if none of the functions  work
@@ -100,18 +102,18 @@ str_to_basic_pyobj = partial(
     funcs=[
         int,
         float,
-        {"True": True, "False": False, "None": None}.__getitem__,
+        {'True': True, 'False': False, 'None': None}.__getitem__,
     ],
 )
 str_to_basic_pyobj.__doc__ = "Casts to int or float if possible, True or False or None if the (string) 'True' or 'False', if not, explodes"
 assert list(
-    map(str_to_basic_pyobj, ["3.14", "3", "True", "False", "something else"])
-) == [3.14, 3, True, False, "something else"]
+    map(str_to_basic_pyobj, ['3.14', '3', 'True', 'False', 'something else'])
+) == [3.14, 3, True, False, 'something else']
 
 dflt_leaf_processor = P(str.strip, str_to_basic_pyobj)
 
 
-def name_func(func, name, name_attr="_name"):
+def name_func(func, name, name_attr='_name'):
     def _func(*args, **kwargs):
         return func(*args, **kwargs)
 
@@ -119,7 +121,7 @@ def name_func(func, name, name_attr="_name"):
     return _func
 
 
-def add_key_as_func_attr(d: dict, name_attr="_name") -> dict:
+def add_key_as_func_attr(d: dict, name_attr='_name') -> dict:
     return {k: name_func(v, k, name_attr) for k, v in d.items()}
 
 
@@ -141,18 +143,18 @@ def mk_op_applicable_to_multiple_args(op_func):
 
 dflt_func_of_op_str = {  # Note: Order represents precedence!
     # an and function that will work with multiple inputs, not just two (and(x,y,z,...))
-    "&": mk_op_applicable_to_multiple_args(o.and_),
-    "|": mk_op_applicable_to_multiple_args(o.or_),
-    "==": o.eq,
-    "!=": o.ne,
-    "<=": o.le,
-    ">=": o.ge,
-    "<": o.lt,
-    ">": o.gt,
-    "-": o.sub,
-    "+": o.add,
-    "*": o.mul,
-    "/": o.truediv,
+    '&': mk_op_applicable_to_multiple_args(o.and_),
+    '|': mk_op_applicable_to_multiple_args(o.or_),
+    '==': o.eq,
+    '!=': o.ne,
+    '<=': o.le,
+    '>=': o.ge,
+    '<': o.lt,
+    '>': o.gt,
+    '-': o.sub,
+    '+': o.add,
+    '*': o.mul,
+    '/': o.truediv,
 }
 
 dflt_func_of_op_str = add_key_as_func_attr(dflt_func_of_op_str)
@@ -231,8 +233,8 @@ class Command:
         if func_of_key is not None:
             func = func_of_key.get(func, func)
         assert isinstance(func, Callable), (
-            f"Your func must be callable. "
-            f"Was {func}. Perhaps you meant to specify a func_of_key map from string to func?"
+            f'Your func must be callable. '
+            f'Was {func}. Perhaps you meant to specify a func_of_key map from string to func?'
         )
 
         def gen():
@@ -269,13 +271,13 @@ class Command:
 
     def __repr__(self):
         func_name = getattr(
-            self.func, "_name", getattr(self.func, "__nane__", repr(self.func))
+            self.func, '_name', getattr(self.func, '__nane__', repr(self.func))
         )
         if isinstance(self.args, Iterable):
-            args_str = ", ".join(map(repr, self.args))
+            args_str = ', '.join(map(repr, self.args))
         else:
             args_str = self.args
-        return f"{{{func_name}: [{args_str}]}}"
+        return f'{{{func_name}: [{args_str}]}}'
 
     @staticmethod
     def parse_to_dict(
