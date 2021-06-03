@@ -82,9 +82,7 @@ no_default = type('no_default', (), {})()
 def transform_if_possible(
     x: Any,
     funcs: Iterable[Callable],
-    pass_on_exceptions: Union[
-        BaseException, Iterable[BaseException]
-    ] = Exception,
+    pass_on_exceptions: Union[BaseException, Iterable[BaseException]] = Exception,
 ):
     """Will try to apply the functions of funcs one by one, returning the value if no errors occur,
     returning x as is if none of the functions  work
@@ -99,11 +97,7 @@ def transform_if_possible(
 
 str_to_basic_pyobj = partial(
     transform_if_possible,
-    funcs=[
-        int,
-        float,
-        {'True': True, 'False': False, 'None': None}.__getitem__,
-    ],
+    funcs=[int, float, {'True': True, 'False': False, 'None': None}.__getitem__,],
 )
 str_to_basic_pyobj.__doc__ = "Casts to int or float if possible, True or False or None if the (string) 'True' or 'False', if not, explodes"
 assert list(
