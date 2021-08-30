@@ -12,9 +12,6 @@ dflt_func_of_op_str_for_table_selection = {
     ">": o.__gt__,
 }
 
-from verb import reverse_dict, identity
-
-
 DFLT_OP_TRANSLATION = {
     "&": "$and",
     "|": "$or",
@@ -63,3 +60,4 @@ class CommandMongo(Command):
     def to_dict(self, op_str_of_func: Optional[dict] = None):
         res = super().to_dict(op_str_of_func)
         return post_process_and_expression(res, op_translation=DFLT_OP_TRANSLATION)
+
