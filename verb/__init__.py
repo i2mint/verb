@@ -162,6 +162,41 @@ def identity(x):
     return x
 
 
+@dataclass
+class Literal:
+    """Wraps an object to distinguish it from other objects of the same type.
+    Call the Literal instance to get the original object
+
+    >>> def print_dict(d):
+    ...     if isinstance(d, dict):
+    ...         print(f"A dict: {d}")
+    ...     else:
+    ...         print(f"A literal dict: {d()}")  # note the parentheses after d!
+    >>> d = {'hello': 'world'}
+    >>> print_dict({'hello': 'world'})
+    A dict: {'hello': 'world'}
+    >>> d = Literal({'hello': 'world'})
+    >>> print_dict(d)
+    A literal dict: {'hello': 'world'}
+
+    `d` is not a `dict`:
+
+    >>> isinstance(d, dict)
+    False
+
+    But you can access the underlying `dict` by calling the `Literal` `d`:
+
+    >>> d()
+    {'hello': 'world'}
+
+    """
+
+    obj: Any
+
+    def __call__(self):
+        return self.obj
+
+
 @dataclass(init=False, unsafe_hash=True)
 class Command:
     func: Callable = identity
@@ -222,7 +257,9 @@ class Command:
         ... )
 
         """
-        assert len(d) == 1
+        assert (
+            len(d) == 1
+        ), f'Your nested dict needs to have a single root (the last operation of the command): {d}'
         func, args = next(iter(d.items()))
         if func_of_key is not None:
             func = func_of_key.get(func, func)
@@ -231,10 +268,15 @@ class Command:
             f'Was {func}. Perhaps you meant to specify a func_of_key map from string to func?'
         )
 
+        is_command_dict = lambda arg: isinstance(arg, dict) and len(arg) == 1
+
         def gen():
             for arg in args:
-                if isinstance(arg, dict) and len(arg) == 1:
+                if is_command_dict(arg):
                     yield Command.from_dict(arg, func_of_key)
+                elif isinstance(arg, Literal):
+                    literal_underlying_value = arg()
+                    yield Command(identity, literal_underlying_value)
                 else:
                     yield Command(identity, arg)
 
