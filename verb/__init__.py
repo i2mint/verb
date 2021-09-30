@@ -307,7 +307,7 @@ class Command:
 
     def __repr__(self):
         func_name = getattr(
-            self.func, '_name', getattr(self.func, '__nane__', repr(self.func))
+            self.func, '_name', getattr(self.func, '__name__', repr(self.func))
         )
         if isinstance(self.args, Iterable):
             args_str = ', '.join(map(repr, self.args))
