@@ -57,6 +57,6 @@ class CommandMongo(Command):
 
     """
 
-    def to_dict(self, op_str_of_func: Optional[dict] = None):
-        res = super().to_dict(op_str_of_func)
+    def to_dict(self, key_of_func: Optional[dict] = None):
+        res = super().to_dict(key_of_func)
         return post_process_and_expression(res, op_translation=DFLT_OP_TRANSLATION)

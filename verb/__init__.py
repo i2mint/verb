@@ -69,6 +69,7 @@ That same dict can be used as a parameter to make the same command
 from functools import partial, reduce, wraps
 from dataclasses import dataclass
 from typing import Callable, Iterable, Optional, Union, Any
+from collections import Mapping
 import operator as o
 
 from lined import Pipe as P, iterize as I
@@ -77,6 +78,46 @@ from lined.tools import expanded_args
 PI = P(P, I)  # you like? Well, too bad! I think it's cute and useful!
 
 no_default = type('no_default', (), {})()
+
+
+class frozendict(Mapping):
+    """
+    An immutable wrapper around dictionaries that implements the complete :py:class:`collections.Mapping`
+    interface. It can be used as a drop-in replacement for dictionaries where immutability is desired.
+    Adapted from: https://github.com/slezica/python-frozendict
+    """
+
+    dict_cls = dict
+
+    def __init__(self, *args, **kwargs):
+        self._dict = self.dict_cls(*args, **kwargs)
+        self._hash = None
+
+    def __getitem__(self, key):
+        return self._dict[key]
+
+    def __contains__(self, key):
+        return key in self._dict
+
+    def copy(self, **add_or_replace):
+        return self.__class__(self, **add_or_replace)
+
+    def __iter__(self):
+        return iter(self._dict)
+
+    def __len__(self):
+        return len(self._dict)
+
+    def __repr__(self):
+        return '<%s %r>' % (self.__class__.__name__, self._dict)
+
+    def __hash__(self):
+        if self._hash is None:
+            h = 0
+            for key, value in iteritems(self._dict):
+                h ^= hash((key, value))
+            self._hash = h
+        return self._hash
 
 
 def first(iterable: Iterable):
@@ -201,13 +242,19 @@ class Literal:
         return self.obj
 
 
-from typing import TypedDict, NewType, TypeVar, Dict
+from typing import TypedDict, NewType, TypeVar, Dict, Mapping
 
 KT = TypeVar('KT')
 
-FuncOfKey = NewType('FuncOfKey', Dict[KT, Callable])
-FuncOfStrKey = NewType('FuncOfStrKey', Dict[str, Callable])
-CommandDict = NewType('CommandDict', dict)  # and size 1
+FuncOfKey = NewType('FuncOfKey', Mapping[KT, Callable])
+FuncOfKey.__doc__ = 'A `Mapping` of keys (`KT`) to Callables that they represent'
+KeyOfFunc = NewType('KeyOfFunc', Mapping[Callable, KT])
+KeyOfFunc.__doc__ = (
+    'A `Mapping` of Callables to keys (KT). The inverse of a `FuncOfKey`'
+)
+FuncOfStrKey = NewType('FuncOfStrKey', Mapping[str, Callable])
+FuncOfStrKey.__doc__ = 'A specialization of a `FuncOfKey` where keys are strings'
+CommandDict = NewType('CommandDict', dict)  # and should be size 1
 
 
 @dataclass(init=False, unsafe_hash=True)
@@ -238,12 +285,12 @@ class Command:
             else:
                 yield arg
 
-    def to_dict(self, op_str_of_func: Optional[dict] = None):
-        if op_str_of_func is None and self._func_of_op_str:
-            op_str_of_func = reverse_dict(self._func_of_op_str)
+    def to_dict(self, key_of_func: Optional[dict] = None):
+        if key_of_func is None and self._func_of_op_str:
+            key_of_func = reverse_dict(self._func_of_op_str)
         func = self.func
-        if func in (op_str_of_func or {}):
-            func = op_str_of_func[self.func]
+        if func in (key_of_func or {}):
+            func = key_of_func[self.func]
 
         def process_args():
             for arg in self.args:
@@ -251,7 +298,7 @@ class Command:
                     if arg.func == identity:
                         yield arg.args[0]
                     else:
-                        yield arg.to_dict(op_str_of_func)
+                        yield arg.to_dict(key_of_func)
                 else:
                     yield arg
 
@@ -291,12 +338,6 @@ class Command:
             f'(the last operation of the command): {d}'
         )
         func, args = first(d.items())
-        # if func_of_key is not None:
-        #     # get the callable that func (a key) points to
-        #     func = func_of_key.get(
-        #         func, func
-        #     )  # if func (the key) not found, keep func as is
-
         func = func_of_key[func]
 
         def gen():
@@ -320,6 +361,10 @@ class Command:
         str_preprocessor=str.strip,
         leaf_processor=str_to_basic_pyobj,
     ):
+        """Make a Command object from a string
+
+
+        """
         string = str_preprocessor(string)
         parser = partial(
             Command.from_string,
