@@ -63,6 +63,19 @@ That same dict can be used as a parameter to make the same command
 >>> command()
 1.5
 
+>>> # Note that Literal is/may be needed to avoid Command to interpret 'temperature' as an operator
+>>> condition_1 = {'<': ({'[]': (Literal({'temperature': 2}), 'temperature')}, 80)}
+>>> condition_2 = {'>': ({'[]': (Literal({'temperature': 2}), 'temperature')}, 60)}
+>>> cond_1_and_2 = {'&': (condition_1, condition_2)}
+>>> func_of_key = {'&': o.and_, '>': o.gt, '<': o.lt, '[]': lambda d, tag: d[tag]}
+>>> Command.from_dict(cond_1_and_2, func_of_key)()
+False
+
+>>> # we can change the meaning of the operator, below a non-sensical one which results in True
+>>> func_of_key = {'&': o.and_, '>': o.gt, '<': o.lt, '[]': lambda d, tag: 70}
+>>> Command.from_dict(cond_1_and_2, func_of_key)()
+True
+
 
 """
 
