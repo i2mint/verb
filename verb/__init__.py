@@ -79,6 +79,10 @@ PI = P(P, I)  # you like? Well, too bad! I think it's cute and useful!
 no_default = type('no_default', (), {})()
 
 
+def first(iterable: Iterable):
+    return next(iter(iterable))
+
+
 def transform_if_possible(
     x: Any,
     funcs: Iterable[Callable],
@@ -197,6 +201,15 @@ class Literal:
         return self.obj
 
 
+from typing import TypedDict, NewType, TypeVar, Dict
+
+KT = TypeVar('KT')
+
+FuncOfKey = NewType('FuncOfKey', Dict[KT, Callable])
+FuncOfStrKey = NewType('FuncOfStrKey', Dict[str, Callable])
+CommandDict = NewType('CommandDict', dict)  # and size 1
+
+
 @dataclass(init=False, unsafe_hash=True)
 class Command:
     func: Callable = identity
@@ -244,8 +257,19 @@ class Command:
 
         return {func: tuple(process_args())}
 
+    @staticmethod
+    def diagnose_func_of_key(func_of_key):
+        non_callable_vals = [
+            func for func in func_of_key.values() if not isinstance(func, Callable)
+        ]
+        if non_callable_vals:  # if there are any values that are not callable
+            raise TypeError(
+                f"All values of FuncOfKey/FuncOfStrKey must be callable, these weren't: "
+                f"{', '.join(non_callable_vals)}"
+            )
+
     @classmethod
-    def from_dict(cls, d: dict, func_of_key: Optional[dict] = None):
+    def from_dict(cls, d: CommandDict, func_of_key: FuncOfKey, diagnose: bool = True):
         """Make a command from a dict specification
         If func_of_key is not given, the keys
 
@@ -257,23 +281,28 @@ class Command:
         ... )
 
         """
-        assert (
-            len(d) == 1
-        ), f'Your nested dict needs to have a single root (the last operation of the command): {d}'
-        func, args = next(iter(d.items()))
-        if func_of_key is not None:
-            func = func_of_key.get(func, func)
-        assert isinstance(func, Callable), (
-            f'Your func must be callable. '
-            f'Was {func}. Perhaps you meant to specify a func_of_key map from string to func?'
+        if diagnose:
+            Command.diagnose_func_of_key(func_of_key)
+        is_command_dict = lambda x: (
+            isinstance(x, dict) and len(x) == 1 and first(x) in func_of_key
         )
+        assert is_command_dict(d), (
+            f'Must be a command dict. That is, a nested dict of size one (a single root, whose key represents a func) '
+            f'(the last operation of the command): {d}'
+        )
+        func, args = first(d.items())
+        # if func_of_key is not None:
+        #     # get the callable that func (a key) points to
+        #     func = func_of_key.get(
+        #         func, func
+        #     )  # if func (the key) not found, keep func as is
 
-        is_command_dict = lambda arg: isinstance(arg, dict) and len(arg) == 1
+        func = func_of_key[func]
 
         def gen():
             for arg in args:
                 if is_command_dict(arg):
-                    yield Command.from_dict(arg, func_of_key)
+                    yield Command.from_dict(arg, func_of_key, diagnose=False)
                 elif isinstance(arg, Literal):
                     literal_underlying_value = arg()
                     yield Command(identity, literal_underlying_value)
@@ -287,7 +316,7 @@ class Command:
     def from_string(
         cls,
         string: str,
-        func_of_op_str: Optional[dict] = None,
+        func_of_op_str: Optional[FuncOfStrKey] = None,
         str_preprocessor=str.strip,
         leaf_processor=str_to_basic_pyobj,
     ):

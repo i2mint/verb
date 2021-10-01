@@ -45,13 +45,15 @@ def test_minilanger():
     minilang = partial(minilanger, interpreter_dict=func_of_key)
 
     func1 = partial(minilang, spec={'tag': 'temperature', 'operator': '<', 'value': 0})
-    assert func1({'temperature': 2}) == False
-    assert func1({'temperature': -3}) == True
-    assert func1({'temperature': -10, 'rpm': 234}) == True
+    assert not func1({'temperature': 2})
+    assert func1({'temperature': -3})
+    assert func1({'temperature': -10, 'rpm': 234})
 
     func2 = partial(
         minilang, spec={'tag': 'machine', 'operator': '==', 'value': 'fridge'}
     )
-    assert func2({'machine': 'fridge'}) == True
-    assert func2({'machine': 'coffee maker'}) == False
-    assert func2({'temperature': -10, 'machine': 'fridge', 'color': 'blue'}) == True
+    assert func2({'machine': 'fridge'})
+    assert not func2({'machine': 'coffee maker'})
+    assert func2({'temperature': -10, 'machine': 'fridge', 'color': 'blue'})
+
+test_minilanger()
