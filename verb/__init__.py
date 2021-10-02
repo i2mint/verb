@@ -1,25 +1,55 @@
 """
-Tools to make mini-languages
+Tools to make mini-languages.
+
+Uses cases: In situations where you want to get some input from a user (from the web,
+in a command line, etc.) that specifies a computation to be carried out, you know
+(right) that you definitely shouldn't resort to using `eval` or `exec`.
+Because it's dangerous for everyone involved -- let's just not go there.
+
+`verb` offers an alternative: Easily building minilanguages that will allow the user
+to only execute the functions you choose, through a vocabulary you choose,
+and everyone can go home (as) safe (as you allow).
+
+Do things like this:
+
+>>> from verb import mk_executer
+>>>
+>>> func_of_key = {
+...     'plus': lambda x, y: x + y,
+...     'minus': lambda x, y: x - y,
+... }
+>>>
+>>>
+>>> execute = mk_executer(func_of_key)
+>>> execute('3 minus 2 plus 1')
+2
+>>> execute('9 minus 6')
+3
+
+In a nutshell, you make a key-to-func mapping (or use the default):
 
 >>> import operator as o
 >>> from verb import *
-
-In a nutshell, you make a str-to-func mapping (or use the default)
-
->>> func_of_op_str = {  # Note: Order represents precedence!
+>>> func_of_key = {  # Note: Order represents precedence!
 ...     '-': o.sub,
 ...     '+': o.add,
 ...     '*': o.mul,
 ...     '/': o.truediv,
 ... }
 
+Now you have a minilanguage! Out-of-the-box it will allow you to "speak it in string"
+or "speak it in json/dict", but you can extend to enable the language to be written in
+any container you want.
 
-You give it a command string
+If you give it a "command string":
 
+>>> from verb import mk_command
 >>> command_str = '1 + 2 - 3 * 4 / 8'
->>> command = Command(command_str, func_of_op_str)
+>>> command = mk_command(command_str, func_of_key)
 
-You execute the command
+It will use `func_of_key` to both parse it and replace the keys with an indication
+that the corresponding function should be called.
+`command` is a callable object, and when you call it, it executes it's instructions.
 
 >>> command()
 1.5
@@ -59,30 +89,26 @@ Or if you read better with indents
 
 That same dict can be used as a parameter to make the same command
 
->>> command = Command(d, func_of_op_str)
+>>> command = mk_command(d, func_of_key)
 >>> command()
 1.5
-
->>> # Note that Literal is/may be needed to avoid Command to interpret 'temperature' as an operator
->>> condition_1 = {'<': ({'[]': (Literal({'temperature': 2}), 'temperature')}, 80)}
->>> condition_2 = {'>': ({'[]': (Literal({'temperature': 2}), 'temperature')}, 60)}
->>> cond_1_and_2 = {'&': (condition_1, condition_2)}
->>> func_of_key = {'&': o.and_, '>': o.gt, '<': o.lt, '[]': lambda d, tag: d[tag]}
->>> Command.from_dict(cond_1_and_2, func_of_key)()
-False
-
->>> # we can change the meaning of the operator, below a non-sensical one which results in True
->>> func_of_key = {'&': o.and_, '>': o.gt, '<': o.lt, '[]': lambda d, tag: 70}
->>> Command.from_dict(cond_1_and_2, func_of_key)()
-True
 
 
 """
 
-from functools import partial, reduce, wraps
+from functools import partial, reduce
 from dataclasses import dataclass
-from typing import Callable, Iterable, Optional, Union, Any
-from collections import Mapping
+from typing import (
+    Callable,
+    Iterable,
+    Optional,
+    Union,
+    Any,
+    Mapping,
+    TypeVar,
+    NewType,
+)
+
 import operator as o
 
 from lined import Pipe as P, iterize as I
@@ -91,12 +117,15 @@ from lined.tools import expanded_args
 PI = P(P, I)  # you like? Well, too bad! I think it's cute and useful!
 
 no_default = type('no_default', (), {})()
+T = TypeVar('T')
 
 
 class frozendict(Mapping):
     """
-    An immutable wrapper around dictionaries that implements the complete :py:class:`collections.Mapping`
-    interface. It can be used as a drop-in replacement for dictionaries where immutability is desired.
+    An immutable wrapper around dictionaries that implements the complete
+    :py:class:`collections.Mapping` interface.
+    It can be used as a drop-in replacement for dictionaries where immutability
+    is desired.
     Adapted from: https://github.com/slezica/python-frozendict
     """
 
@@ -127,13 +156,13 @@ class frozendict(Mapping):
     def __hash__(self):
         if self._hash is None:
             h = 0
-            for key, value in iteritems(self._dict):
+            for key, value in self._dict.items():
                 h ^= hash((key, value))
             self._hash = h
         return self._hash
 
 
-def first(iterable: Iterable):
+def first(iterable: Iterable[T]) -> T:
     return next(iter(iterable))
 
 
@@ -165,7 +194,7 @@ assert list(
 dflt_leaf_processor = P(str.strip, str_to_basic_pyobj)
 
 
-def name_func(func, name, name_attr='_name'):
+def name_func(func: Callable, name: str, name_attr='_name') -> Callable:
     def _func(*args, **kwargs):
         return func(*args, **kwargs)
 
@@ -173,7 +202,7 @@ def name_func(func, name, name_attr='_name'):
     return _func
 
 
-def add_key_as_func_attr(d: dict, name_attr='_name') -> dict:
+def add_key_as_func_attr(d: Mapping, name_attr='_name') -> dict:
     return {k: name_func(v, k, name_attr) for k, v in d.items()}
 
 
@@ -193,26 +222,33 @@ def mk_op_applicable_to_multiple_args(op_func):
     return expanded_args(partial(reduce, op_func))
 
 
-dflt_func_of_op_str = {  # Note: Order represents precedence!
-    # an and function that will work with multiple inputs, not just two (and(x,y,z,...))
-    '&': mk_op_applicable_to_multiple_args(o.and_),
-    '|': mk_op_applicable_to_multiple_args(o.or_),
-    '==': o.eq,
-    '!=': o.ne,
-    '<=': o.le,
-    '>=': o.ge,
-    '<': o.lt,
-    '>': o.gt,
-    '-': o.sub,
-    '+': o.add,
-    '*': o.mul,
-    '/': o.truediv,
-}
+dflt_func_of_key = frozendict(
+    {  # Note: Order represents precedence!
+        # an and function that will work with multiple inputs, not just two (and(x,y,z,...))
+        '&': mk_op_applicable_to_multiple_args(o.and_),
+        '|': mk_op_applicable_to_multiple_args(o.or_),
+        '==': o.eq,
+        '!=': o.ne,
+        '<=': o.le,
+        '>=': o.ge,
+        '<': o.lt,
+        '>': o.gt,
+        '-': o.sub,
+        '+': o.add,
+        '*': o.mul,
+        '/': o.truediv,
+    }
+)
 
-dflt_func_of_op_str = add_key_as_func_attr(dflt_func_of_op_str)
+dflt_func_of_key = frozendict(add_key_as_func_attr(dflt_func_of_key))
 
 
-def reverse_dict(d: dict):
+def reverse_dict(d: Mapping):
+    """A dict obtained from the input mapping by inverting keys and values
+
+    >>> reverse_dict({1: 'one', 3: 'three'})
+    {'one': 1, 'three': 3}
+    """
     return {v: k for k, v in d.items()}
 
 
@@ -255,12 +291,15 @@ class Literal:
         return self.obj
 
 
-from typing import TypedDict, NewType, TypeVar, Dict, Mapping
-
 KT = TypeVar('KT')
 
+Expression = NewType('Expression', Any)
+Expression.__doc__ = "An object that expresses a command"
 FuncOfKey = NewType('FuncOfKey', Mapping[KT, Callable])
-FuncOfKey.__doc__ = 'A `Mapping` of keys (`KT`) to Callables that they represent'
+FuncOfKey.__doc__ = (
+    'A `Mapping` of keys (`KT`) to Callables that they represent. '
+    'Specifies an interpreter by specifying both parser and compiler.'
+)
 KeyOfFunc = NewType('KeyOfFunc', Mapping[Callable, KT])
 KeyOfFunc.__doc__ = (
     'A `Mapping` of Callables to keys (KT). The inverse of a `FuncOfKey`'
@@ -270,20 +309,47 @@ FuncOfStrKey.__doc__ = 'A specialization of a `FuncOfKey` where keys are strings
 CommandDict = NewType('CommandDict', dict)  # and should be size 1
 
 
+def call(func):
+    return func()
+
+
+def mk_executer(func_of_key: FuncOfKey):
+    """Make a function that will take expressions then parse, compile, and execute them.
+
+    >>> func_of_key = {
+    ...     'plus': lambda x, y: x + y,
+    ...     'minus': lambda x, y: x - y,
+    ... }
+    >>>
+    >>>
+    >>> execute = mk_executer(func_of_key)
+    >>> execute('3 minus 2 plus 1')
+    2
+    >>> execute('9 minus 6')
+    3
+    """
+    return P(partial(mk_command, func_of_key=func_of_key), call)
+
+
+def mk_command(expression: Expression, func_of_key: FuncOfKey):
+    """Makes a Command object from an expression and a func_of_key (interpreter)"""
+    return Command(expression, func_of_key)
+
+
 @dataclass(init=False, unsafe_hash=True)
 class Command:
-    func: Callable = identity
-    args: Iterable = ()
-    _func_of_op_str = None
+    func: Union[Callable, Expression] = identity
+    args: Union[Iterable, FuncOfKey] = ()
+    _func_of_key = None
 
     def __init__(self, func, *args):
         if isinstance(func, (dict, str)):
-            func_of_op_str = next(iter(args), dflt_func_of_op_str)
-            self._func_of_op_str = func_of_op_str
+            func_of_key = next(iter(args), dflt_func_of_key)
+            self._func_of_key = func_of_key
             if isinstance(func, dict):
-                command = Command.from_dict(func, func_of_op_str)
+                command = Command.from_dict(func, func_of_key)
             elif isinstance(func, str):
-                command = Command.from_string(func, func_of_op_str)
+                command = Command.from_string(func, func_of_key)
             func, args = command.func, command.args
         self.func = func
         self.args = args
@@ -299,8 +365,8 @@ class Command:
                 yield arg
 
     def to_dict(self, key_of_func: Optional[dict] = None):
-        if key_of_func is None and self._func_of_op_str:
-            key_of_func = reverse_dict(self._func_of_op_str)
+        if key_of_func is None and self._func_of_key:
+            key_of_func = reverse_dict(self._func_of_key)
         func = self.func
         if func in (key_of_func or {}):
             func = key_of_func[self.func]
@@ -334,7 +400,7 @@ class Command:
         If func_of_key is not given, the keys
 
         >>> assert Command.parse_to_dict(
-        ...     'machine == crane & rpm >= 3 & pressure < 21.2', dflt_func_of_op_str) == (
+        ...     'machine == crane & rpm >= 3 & pressure < 21.2', dflt_func_of_key) == (
         ...    {'&': [{'==': ['machine', 'crane']},
         ...           {'>=': ['rpm', 3]},
         ...           {'<': ['pressure', 21.2]}]}
@@ -370,7 +436,7 @@ class Command:
     def from_string(
         cls,
         string: str,
-        func_of_op_str: Optional[FuncOfStrKey] = None,
+        func_of_key: Optional[FuncOfStrKey] = None,
         str_preprocessor=str.strip,
         leaf_processor=str_to_basic_pyobj,
     ):
@@ -381,15 +447,15 @@ class Command:
         string = str_preprocessor(string)
         parser = partial(
             Command.from_string,
-            func_of_op_str=func_of_op_str,
+            func_of_key=func_of_key,
             str_preprocessor=str_preprocessor,
             leaf_processor=leaf_processor,
         )
-        func_of_op_str = func_of_op_str or dflt_func_of_op_str
-        for sep, func in func_of_op_str.items():
+        func_of_key = func_of_key or dflt_func_of_key
+        for sep, func in func_of_key.items():
             parts = list(filter(str_preprocessor, string.split(sep)))
             if len(parts) > 1:
-                return Command(func_of_op_str[sep], *map(parser, parts))
+                return Command(func_of_key[sep], *map(parser, parts))
         return Command(identity, leaf_processor(string))
 
     def __repr__(self):
@@ -405,19 +471,19 @@ class Command:
     @staticmethod
     def parse_to_dict(
         string,
-        func_of_op_str: Optional[dict] = None,
+        func_of_key: Optional[dict] = None,
         str_preprocessor=str.strip,
         leaf_processor=str_to_basic_pyobj,
     ):
-        func_of_op_str = func_of_op_str or dflt_func_of_op_str
+        func_of_key = func_of_key or dflt_func_of_key
         string = str_preprocessor(string)
         parser = partial(
             Command.parse_to_dict,
-            func_of_op_str=func_of_op_str,
+            func_of_key=func_of_key,
             str_preprocessor=str_preprocessor,
             leaf_processor=leaf_processor,
         )
-        for sep, func in func_of_op_str.items():
+        for sep, func in func_of_key.items():
             parts = list(filter(str_preprocessor, string.split(sep)))
             if len(parts) > 1:
                 return {sep: list(map(parser, parts))}

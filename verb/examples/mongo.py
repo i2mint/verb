@@ -2,7 +2,7 @@ from typing import Optional
 from verb import Command
 import operator as o
 
-dflt_func_of_op_str_for_table_selection = {
+dflt_func_of_key_for_table_selection = {
     '|': o.__or__,
     '&': o.__and__,
     '==': o.__eq__,
@@ -51,7 +51,7 @@ class CommandMongo(Command):
 
     Usage:
     >>> command_str = "session == 1 & rpm>=500 & phase == 0"
-    >>> command = CommandMongo(command_str, dflt_func_of_op_str_for_table_selection)
+    >>> command = CommandMongo(command_str, dflt_func_of_key_for_table_selection)
     >>> command.to_dict()
     {'$and': [{'session': 1}, {'rpm': {'$gte': 500}}, {'phase': 0}]}
 
