@@ -1,55 +1,70 @@
 # verb
 Easy make mini-languages to do python things.
 
-
 To install:	```pip install verb```
 
+Do things like this:
 
+```python
+from verb import mk_executer
+
+func_of_key = {
+    'plus': lambda x, y: x + y,
+    'minus': lambda x, y: x - y,
+}
+execute = mk_executer(func_of_key)
+execute('3 minus 2 plus 1')
+## 2
+execute('9 minus 6')
+## 3
+
+```
 
 # A quick intro to Command
 
+Uses cases: In situations where you want to get some input from a user (from the web,
+in a command line, etc.) that specifies a computation to be carried out, you know
+(right) that you definitely shouldn't resort to using `eval` or `exec`.
+Because it's dangerous for everyone involved -- let's just not go there.
+
+`verb` offers an alternative: Easily building minilanguages that will allow the user
+to only execute the functions you choose, through a vocabulary you choose,
+and everyone can go home (as) safe (as you allow).
+
+In a nutshell, you make a key-to-func mapping (or use the default). 
+This `func_of_key` mapping is what specifies your _interpreter_:
 
 ```python
 from verb import *
-```
-
-In a nutshell, you make a str-to-func mapping (or use the default)
-
-
-```python
 import operator as o
 
-func_of_op_str = {  # Note: Order represents precedence!
+func_of_key = {  # Note: Order represents precedence!
     '-': o.sub,
     '+': o.add,
     '*': o.mul,
     '/': o.truediv,
 }
-
-# You give it a command string
-
-command_str = '1 + 2 - 3 * 4 / 8'
-command = Command(command_str, func_of_op_str)
-
-# You execute the command
-command()
 ```
 
+Now you have a minilanguage! Out-of-the-box it will allow you to "speak it in string"
+or "speak it in json/dict", but you can extend to enable the language to be written in
+any container you want.
 
-
-    1.5
-
-
-
-You give it a command string
+If you give it a "command string":
 
 
 ```python
 command_str = '1 + 2 - 3 * 4 / 8'
-command = Command(command_str, func_of_op_str)
+command = Command(command_str, func_of_key)
 ```
 
-You execute the command
+>>> command_str = '1 + 2 - 3 * 4 / 8'
+>>> command = Command(command_str, func_of_key)
+
+It will use `func_of_key` to both parse it and replace the keys with an indication
+that the corresponding function should be called.
+`command` is a callable object, and when you call it, 
+it executes it's instructions:
 
 
 ```python
@@ -57,10 +72,7 @@ command()
 ```
 
 
-
-
     1.5
-
 
 
 It may be useful to see what the operation structure looks like
@@ -70,8 +82,6 @@ It may be useful to see what the operation structure looks like
 d = command.to_dict()
 d
 ```
-
-
 
 
     {'-': ({'+': (1, 2)}, {'*': (3, {'/': (4, 8)})})}
@@ -118,7 +128,7 @@ That same dict can be used as a parameter to make the same command
 
 
 ```python
-command = Command(d, func_of_op_str)
+command = Command(d, func_of_key)
 command()
 ```
 
@@ -141,7 +151,7 @@ from lined import Pipe
 from verb import str_to_basic_pyobj, Command
 
 
-dflt_func_of_op_str_for_table_selection = {  # Note: Order represents precedence!
+dflt_func_of_key_for_table_selection = {  # Note: Order represents precedence!
     '&': o.__and__,
     '==': o.__eq__,
     '<=': o.__le__,
@@ -153,7 +163,7 @@ dflt_func_of_op_str_for_table_selection = {  # Note: Order represents precedence
 
 def mk_table_selector(
     table: pd.DataFrame,
-    func_of_op_str: Mapping[str, Callable] = dflt_func_of_op_str_for_table_selection
+    func_of_key: Mapping[str, Callable] = dflt_func_of_key_for_table_selection
 ):
 
     def leaf_processor(x):
@@ -165,7 +175,7 @@ def mk_table_selector(
     run_command = Pipe(
         partial(
             Command.from_string,
-            func_of_op_str=func_of_op_str,
+            func_of_key=func_of_key,
             leaf_processor=leaf_processor
         ),
         lambda f: f(),
