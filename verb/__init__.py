@@ -294,7 +294,7 @@ class Literal:
 KT = TypeVar('KT')
 
 Expression = NewType('Expression', Any)
-Expression.__doc__ = "An object that expresses a command"
+Expression.__doc__ = 'An object that expresses a command'
 FuncOfKey = NewType('FuncOfKey', Mapping[KT, Callable])
 FuncOfKey.__doc__ = (
     'A `Mapping` of keys (`KT`) to Callables that they represent. '
