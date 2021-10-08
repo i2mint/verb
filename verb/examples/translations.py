@@ -56,4 +56,3 @@ def test_minilanger():
     assert not func2({'machine': 'coffee maker'})
     assert func2({'temperature': -10, 'machine': 'fridge', 'color': 'blue'})
 
-test_minilanger()
