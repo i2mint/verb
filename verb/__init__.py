@@ -99,15 +99,13 @@ That same dict can be used as a parameter to make the same command
 from functools import partial, reduce
 from dataclasses import dataclass
 from typing import (
-    Callable,
-    Iterable,
     Optional,
     Union,
     Any,
-    Mapping,
     TypeVar,
     NewType,
 )
+from collections.abc import Callable, Iterable, Mapping
 
 import operator as o
 
@@ -151,7 +149,7 @@ class frozendict(Mapping):
         return len(self._dict)
 
     def __repr__(self):
-        return '<%s %r>' % (self.__class__.__name__, self._dict)
+        return '<{} {!r}>'.format(self.__class__.__name__, self._dict)
 
     def __hash__(self):
         if self._hash is None:
@@ -169,7 +167,7 @@ def first(iterable: Iterable[T]) -> T:
 def transform_if_possible(
     x: Any,
     funcs: Iterable[Callable],
-    pass_on_exceptions: Union[BaseException, Iterable[BaseException]] = Exception,
+    pass_on_exceptions: BaseException | Iterable[BaseException] = Exception,
 ):
     """Will try to apply the functions of funcs one by one, returning the value if no errors occur,
     returning x as is if none of the functions  work
@@ -338,8 +336,8 @@ def mk_command(expression: Expression, func_of_key: FuncOfKey):
 
 @dataclass(init=False, unsafe_hash=True)
 class Command:
-    func: Union[Callable, Expression] = identity
-    args: Union[Iterable, FuncOfKey] = ()
+    func: Callable | Expression = identity
+    args: Iterable | FuncOfKey = ()
     _func_of_key = None
 
     def __init__(self, func, *args):
@@ -364,7 +362,7 @@ class Command:
             else:
                 yield arg
 
-    def to_dict(self, key_of_func: Optional[dict] = None):
+    def to_dict(self, key_of_func: dict | None = None):
         if key_of_func is None and self._func_of_key:
             key_of_func = reverse_dict(self._func_of_key)
         func = self.func
@@ -436,7 +434,7 @@ class Command:
     def from_string(
         cls,
         string: str,
-        func_of_key: Optional[FuncOfStrKey] = None,
+        func_of_key: FuncOfStrKey | None = None,
         str_preprocessor=str.strip,
         leaf_processor=str_to_basic_pyobj,
     ):
@@ -471,7 +469,7 @@ class Command:
     @staticmethod
     def parse_to_dict(
         string,
-        func_of_key: Optional[dict] = None,
+        func_of_key: dict | None = None,
         str_preprocessor=str.strip,
         leaf_processor=str_to_basic_pyobj,
     ):
