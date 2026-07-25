@@ -114,8 +114,8 @@ from lined.tools import expanded_args
 
 PI = P(P, I)  # you like? Well, too bad! I think it's cute and useful!
 
-no_default = type('no_default', (), {})()
-T = TypeVar('T')
+no_default = type("no_default", (), {})()
+T = TypeVar("T")
 
 
 class frozendict(Mapping):
@@ -149,7 +149,7 @@ class frozendict(Mapping):
         return len(self._dict)
 
     def __repr__(self):
-        return '<{} {!r}>'.format(self.__class__.__name__, self._dict)
+        return "<{} {!r}>".format(self.__class__.__name__, self._dict)
 
     def __hash__(self):
         if self._hash is None:
@@ -182,17 +182,21 @@ def transform_if_possible(
 
 str_to_basic_pyobj = partial(
     transform_if_possible,
-    funcs=[int, float, {'True': True, 'False': False, 'None': None}.__getitem__,],
+    funcs=[
+        int,
+        float,
+        {"True": True, "False": False, "None": None}.__getitem__,
+    ],
 )
 str_to_basic_pyobj.__doc__ = "Casts to int or float if possible, True or False or None if the (string) 'True' or 'False', if not, explodes"
 assert list(
-    map(str_to_basic_pyobj, ['3.14', '3', 'True', 'False', 'something else'])
-) == [3.14, 3, True, False, 'something else']
+    map(str_to_basic_pyobj, ["3.14", "3", "True", "False", "something else"])
+) == [3.14, 3, True, False, "something else"]
 
 dflt_leaf_processor = P(str.strip, str_to_basic_pyobj)
 
 
-def name_func(func: Callable, name: str, name_attr='_name') -> Callable:
+def name_func(func: Callable, name: str, name_attr="_name") -> Callable:
     def _func(*args, **kwargs):
         return func(*args, **kwargs)
 
@@ -200,7 +204,7 @@ def name_func(func: Callable, name: str, name_attr='_name') -> Callable:
     return _func
 
 
-def add_key_as_func_attr(d: Mapping, name_attr='_name') -> dict:
+def add_key_as_func_attr(d: Mapping, name_attr="_name") -> dict:
     return {k: name_func(v, k, name_attr) for k, v in d.items()}
 
 
@@ -223,18 +227,18 @@ def mk_op_applicable_to_multiple_args(op_func):
 dflt_func_of_key = frozendict(
     {  # Note: Order represents precedence!
         # an and function that will work with multiple inputs, not just two (and(x,y,z,...))
-        '&': mk_op_applicable_to_multiple_args(o.and_),
-        '|': mk_op_applicable_to_multiple_args(o.or_),
-        '==': o.eq,
-        '!=': o.ne,
-        '<=': o.le,
-        '>=': o.ge,
-        '<': o.lt,
-        '>': o.gt,
-        '-': o.sub,
-        '+': o.add,
-        '*': o.mul,
-        '/': o.truediv,
+        "&": mk_op_applicable_to_multiple_args(o.and_),
+        "|": mk_op_applicable_to_multiple_args(o.or_),
+        "==": o.eq,
+        "!=": o.ne,
+        "<=": o.le,
+        ">=": o.ge,
+        "<": o.lt,
+        ">": o.gt,
+        "-": o.sub,
+        "+": o.add,
+        "*": o.mul,
+        "/": o.truediv,
     }
 )
 
@@ -289,22 +293,22 @@ class Literal:
         return self.obj
 
 
-KT = TypeVar('KT')
+KT = TypeVar("KT")
 
-Expression = NewType('Expression', Any)
-Expression.__doc__ = 'An object that expresses a command'
-FuncOfKey = NewType('FuncOfKey', Mapping[KT, Callable])
+Expression = NewType("Expression", Any)
+Expression.__doc__ = "An object that expresses a command"
+FuncOfKey = NewType("FuncOfKey", Mapping[KT, Callable])
 FuncOfKey.__doc__ = (
-    'A `Mapping` of keys (`KT`) to Callables that they represent. '
-    'Specifies an interpreter by specifying both parser and compiler.'
+    "A `Mapping` of keys (`KT`) to Callables that they represent. "
+    "Specifies an interpreter by specifying both parser and compiler."
 )
-KeyOfFunc = NewType('KeyOfFunc', Mapping[Callable, KT])
+KeyOfFunc = NewType("KeyOfFunc", Mapping[Callable, KT])
 KeyOfFunc.__doc__ = (
-    'A `Mapping` of Callables to keys (KT). The inverse of a `FuncOfKey`'
+    "A `Mapping` of Callables to keys (KT). The inverse of a `FuncOfKey`"
 )
-FuncOfStrKey = NewType('FuncOfStrKey', Mapping[str, Callable])
-FuncOfStrKey.__doc__ = 'A specialization of a `FuncOfKey` where keys are strings'
-CommandDict = NewType('CommandDict', dict)  # and should be size 1
+FuncOfStrKey = NewType("FuncOfStrKey", Mapping[str, Callable])
+FuncOfStrKey.__doc__ = "A specialization of a `FuncOfKey` where keys are strings"
+CommandDict = NewType("CommandDict", dict)  # and should be size 1
 
 
 def call(func):
@@ -411,8 +415,8 @@ class Command:
             isinstance(x, dict) and len(x) == 1 and first(x) in func_of_key
         )
         assert is_command_dict(d), (
-            f'Must be a command dict. That is, a nested dict of size one (a single root, whose key represents a func) '
-            f'(the last operation of the command): {d}'
+            f"Must be a command dict. That is, a nested dict of size one (a single root, whose key represents a func) "
+            f"(the last operation of the command): {d}"
         )
         func, args = first(d.items())
         func = func_of_key[func]
@@ -438,10 +442,7 @@ class Command:
         str_preprocessor=str.strip,
         leaf_processor=str_to_basic_pyobj,
     ):
-        """Make a Command object from a string
-
-
-        """
+        """Make a Command object from a string"""
         string = str_preprocessor(string)
         parser = partial(
             Command.from_string,
@@ -458,13 +459,13 @@ class Command:
 
     def __repr__(self):
         func_name = getattr(
-            self.func, '_name', getattr(self.func, '__name__', repr(self.func))
+            self.func, "_name", getattr(self.func, "__name__", repr(self.func))
         )
         if isinstance(self.args, Iterable):
-            args_str = ', '.join(map(repr, self.args))
+            args_str = ", ".join(map(repr, self.args))
         else:
             args_str = self.args
-        return f'{{{func_name}: [{args_str}]}}'
+        return f"{{{func_name}: [{args_str}]}}"
 
     @staticmethod
     def parse_to_dict(

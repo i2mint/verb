@@ -9,15 +9,14 @@ Do things like this:
 from verb import mk_executer
 
 func_of_key = {
-    'plus': lambda x, y: x + y,
-    'minus': lambda x, y: x - y,
+    "plus": lambda x, y: x + y,
+    "minus": lambda x, y: x - y,
 }
 execute = mk_executer(func_of_key)
-execute('3 minus 2 plus 1')
+execute("3 minus 2 plus 1")
 ## 2
-execute('9 minus 6')
+execute("9 minus 6")
 ## 3
-
 ```
 
 # A quick intro to Command
@@ -39,10 +38,10 @@ from verb import *
 import operator as o
 
 func_of_key = {  # Note: Order represents precedence!
-    '-': o.sub,
-    '+': o.add,
-    '*': o.mul,
-    '/': o.truediv,
+    "-": o.sub,
+    "+": o.add,
+    "*": o.mul,
+    "/": o.truediv,
 }
 ```
 
@@ -54,7 +53,7 @@ If you give it a "command string":
 
 
 ```python
-command_str = '1 + 2 - 3 * 4 / 8'
+command_str = "1 + 2 - 3 * 4 / 8"
 command = Command(command_str, func_of_key)
 ```
 
@@ -96,7 +95,9 @@ from functools import partial
 import json
 from lined import Pipe
 
-print_jdict = Pipe(partial(json.dumps, indent=2), print)  # Note: Only works if your dict is JSON-izable. 
+print_jdict = Pipe(
+    partial(json.dumps, indent=2), print
+)  # Note: Only works if your dict is JSON-izable.
 
 print_jdict(d)
 ```
@@ -152,18 +153,18 @@ from verb import str_to_basic_pyobj, Command
 
 
 dflt_func_of_key_for_table_selection = {  # Note: Order represents precedence!
-    '&': o.__and__,
-    '==': o.__eq__,
-    '<=': o.__le__,
-    '>=': o.__ge__,
-    '<': o.__lt__,
-    '>': o.__gt__,
+    "&": o.__and__,
+    "==": o.__eq__,
+    "<=": o.__le__,
+    ">=": o.__ge__,
+    "<": o.__lt__,
+    ">": o.__gt__,
 }
 
 
 def mk_table_selector(
     table: pd.DataFrame,
-    func_of_key: Mapping[str, Callable] = dflt_func_of_key_for_table_selection
+    func_of_key: Mapping[str, Callable] = dflt_func_of_key_for_table_selection,
 ):
 
     def leaf_processor(x):
@@ -174,9 +175,7 @@ def mk_table_selector(
 
     run_command = Pipe(
         partial(
-            Command.from_string,
-            func_of_key=func_of_key,
-            leaf_processor=leaf_processor
+            Command.from_string, func_of_key=func_of_key, leaf_processor=leaf_processor
         ),
         lambda f: f(),
         lambda idx: table[idx],
@@ -190,18 +189,24 @@ def mk_table_selector(
 import pandas as pd
 
 df = pd.DataFrame(
-    [{'source': 'audio', 'bt': 5, 'tt': 7, 'annot': 'cat'},
-     {'source': 'audio',
-        'bt': 6,
-        'tt': 9,
-        'annot': 'dog',
-        'comments': 'barks and chases cat away'},
-        {'source': 'visual', 'bt': 5, 'tt': 8, 'annot': 'cat'},
-        {'source': 'visual',
-         'bt': 6,
-         'tt': 15,
-         'annot': 'dog',
-         'comments': 'dog remains in view after bark ceases'}]
+    [
+        {"source": "audio", "bt": 5, "tt": 7, "annot": "cat"},
+        {
+            "source": "audio",
+            "bt": 6,
+            "tt": 9,
+            "annot": "dog",
+            "comments": "barks and chases cat away",
+        },
+        {"source": "visual", "bt": 5, "tt": 8, "annot": "cat"},
+        {
+            "source": "visual",
+            "bt": 6,
+            "tt": 15,
+            "annot": "dog",
+            "comments": "dog remains in view after bark ceases",
+        },
+    ]
 )
 df
 ```
@@ -267,7 +272,7 @@ run_command = mk_table_selector(df)
 
 
 ```python
-run_command('source == audio')
+run_command("source == audio")
 ```
 
 
@@ -311,7 +316,7 @@ run_command('source == audio')
 
 
 ```python
-run_command('tt <= 8')
+run_command("tt <= 8")
 ```
 
 
@@ -354,7 +359,7 @@ run_command('tt <= 8')
 
 
 ```python
-run_command('source == audio & tt <= 8')
+run_command("source == audio & tt <= 8")
 ```
 
 
