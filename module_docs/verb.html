@@ -1,0 +1,361 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>verb &mdash; verb 0.1.14 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=468bc497"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="verb.tests.misc_test" href="verb/tests/misc_test.html" />
+    <link rel="prev" title="Welcome to verb’s documentation!" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            verb
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">verb</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#verb.Command"><code class="docutils literal notranslate"><span class="pre">Command</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#verb.Command.from_dict"><code class="docutils literal notranslate"><span class="pre">Command.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#verb.Command.from_string"><code class="docutils literal notranslate"><span class="pre">Command.from_string()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#verb.Literal"><code class="docutils literal notranslate"><span class="pre">Literal</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verb.frozendict"><code class="docutils literal notranslate"><span class="pre">frozendict</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#verb.frozendict.dict_cls"><code class="docutils literal notranslate"><span class="pre">frozendict.dict_cls</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#verb.mk_command"><code class="docutils literal notranslate"><span class="pre">mk_command()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verb.mk_executer"><code class="docutils literal notranslate"><span class="pre">mk_executer()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verb.mk_op_applicable_to_multiple_args"><code class="docutils literal notranslate"><span class="pre">mk_op_applicable_to_multiple_args()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verb.reverse_dict"><code class="docutils literal notranslate"><span class="pre">reverse_dict()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verb.str_to_basic_pyobj"><code class="docutils literal notranslate"><span class="pre">str_to_basic_pyobj()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verb.transform_if_possible"><code class="docutils literal notranslate"><span class="pre">transform_if_possible()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="verb/tests/misc_test.html">verb.tests.misc_test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verb/util.html">verb.util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">verb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">verb</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/module_docs/verb.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-verb">
+<span id="verb"></span><h1>verb<a class="headerlink" href="#module-verb" title="Link to this heading"></a></h1>
+<p>Tools to make mini-languages.</p>
+<p>Uses cases: In situations where you want to get some input from a user (from the web,
+in a command line, etc.) that specifies a computation to be carried out, you know
+(right) that you definitely shouldn’t resort to using <cite>eval</cite> or <cite>exec</cite>.
+Because it’s dangerous for everyone involved – let’s just not go there.</p>
+<p><cite>verb</cite> offers an alternative: Easily building minilanguages that will allow the user
+to only execute the functions you choose, through a vocabulary you choose,
+and everyone can go home (as) safe (as you allow).</p>
+<p>Do things like this:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">verb</span><span class="w"> </span><span class="kn">import</span> <span class="n">mk_executer</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">func_of_key</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;plus&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;minus&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">execute</span> <span class="o">=</span> <span class="n">mk_executer</span><span class="p">(</span><span class="n">func_of_key</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;3 minus 2 plus 1&#39;</span><span class="p">)</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;9 minus 6&#39;</span><span class="p">)</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+<p>In a nutshell, you make a key-to-func mapping (or use the default):</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">operator</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">o</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">verb</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">func_of_key</span> <span class="o">=</span> <span class="p">{</span>  <span class="c1"># Note: Order represents precedence!</span>
+<span class="gp">... </span>    <span class="s1">&#39;-&#39;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">sub</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;+&#39;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">add</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;*&#39;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">mul</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;/&#39;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">truediv</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Now you have a minilanguage! Out-of-the-box it will allow you to “speak it in string”
+or “speak it in json/dict”, but you can extend to enable the language to be written in
+any container you want.</p>
+<p>If you give it a “command string”:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">verb</span><span class="w"> </span><span class="kn">import</span> <span class="n">mk_command</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">command_str</span> <span class="o">=</span> <span class="s1">&#39;1 + 2 - 3 * 4 / 8&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">command</span> <span class="o">=</span> <span class="n">mk_command</span><span class="p">(</span><span class="n">command_str</span><span class="p">,</span> <span class="n">func_of_key</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>It will use <cite>func_of_key</cite> to both parse it and replace the keys with an indication
+that the corresponding function should be called.
+<cite>command</cite> is a callable object, and when you call it, it executes it’s instructions.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">command</span><span class="p">()</span>
+<span class="go">1.5</span>
+</pre></div>
+</div>
+<p>It may be useful to see what the operation structure looks like</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span>
+<span class="go">{&#39;-&#39;: ({&#39;+&#39;: (1, 2)}, {&#39;*&#39;: (3, {&#39;/&#39;: (4, 8)})})}</span>
+</pre></div>
+</div>
+<p>Or if you read better with indents</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">lined</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipe</span><span class="p">;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">json</span><span class="p">;</span> <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">print_jdict</span> <span class="o">=</span> <span class="n">Pipe</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="nb">print</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">print_jdict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<span class="go">{</span>
+<span class="go">  &quot;-&quot;: [</span>
+<span class="go">    {</span>
+<span class="go">      &quot;+&quot;: [</span>
+<span class="go">        1,</span>
+<span class="go">        2</span>
+<span class="go">      ]</span>
+<span class="go">    },</span>
+<span class="go">    {</span>
+<span class="go">      &quot;*&quot;: [</span>
+<span class="go">        3,</span>
+<span class="go">        {</span>
+<span class="go">          &quot;/&quot;: [</span>
+<span class="go">            4,</span>
+<span class="go">            8</span>
+<span class="go">          ]</span>
+<span class="go">        }</span>
+<span class="go">      ]</span>
+<span class="go">    }</span>
+<span class="go">  ]</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+<p>That same dict can be used as a parameter to make the same command</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">command</span> <span class="o">=</span> <span class="n">mk_command</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">func_of_key</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">command</span><span class="p">()</span>
+<span class="go">1.5</span>
+</pre></div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="verb.Command">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">verb.</span></span><span class="sig-name descname"><span class="pre">Command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/verb.html#Command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#verb.Command" title="Link to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="verb.Command.from_dict">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CommandDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_of_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FuncOfKey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagnose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/verb.html#Command.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#verb.Command.from_dict" title="Link to this definition"></a></dt>
+<dd><p>Make a command from a dict specification
+If func_of_key is not given, the keys</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">Command</span><span class="o">.</span><span class="n">parse_to_dict</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s1">&#39;machine == crane &amp; rpm &gt;= 3 &amp; pressure &lt; 21.2&#39;</span><span class="p">,</span> <span class="n">dflt_func_of_key</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span>
+<span class="gp">... </span>   <span class="p">{</span><span class="s1">&#39;&amp;&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;==&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;machine&#39;</span><span class="p">,</span> <span class="s1">&#39;crane&#39;</span><span class="p">]},</span>
+<span class="gp">... </span>          <span class="p">{</span><span class="s1">&#39;&gt;=&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;rpm&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">]},</span>
+<span class="gp">... </span>          <span class="p">{</span><span class="s1">&#39;&lt;&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;pressure&#39;</span><span class="p">,</span> <span class="mf">21.2</span><span class="p">]}]}</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="verb.Command.from_string">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_of_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FuncOfStrKey</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">str_preprocessor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;method</span> <span class="pre">'strip'</span> <span class="pre">of</span> <span class="pre">'str'</span> <span class="pre">objects&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leaf_processor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">functools.partial(&lt;function</span> <span class="pre">transform_if_possible&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">funcs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[&lt;class</span> <span class="pre">'int'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'float'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;built-in</span> <span class="pre">method</span> <span class="pre">__getitem__</span> <span class="pre">of</span> <span class="pre">dict</span> <span class="pre">object&gt;])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/verb.html#Command.from_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#verb.Command.from_string" title="Link to this definition"></a></dt>
+<dd><p>Make a Command object from a string</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="verb.Literal">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">verb.</span></span><span class="sig-name descname"><span class="pre">Literal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/verb.html#Literal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#verb.Literal" title="Link to this definition"></a></dt>
+<dd><p>Wraps an object to distinguish it from other objects of the same type.
+Call the Literal instance to get the original object</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">print_dict</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A dict: </span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A literal dict: </span><span class="si">{</span><span class="n">d</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># note the parentheses after d!</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;hello&#39;</span><span class="p">:</span> <span class="s1">&#39;world&#39;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">print_dict</span><span class="p">({</span><span class="s1">&#39;hello&#39;</span><span class="p">:</span> <span class="s1">&#39;world&#39;</span><span class="p">})</span>
+<span class="go">A dict: {&#39;hello&#39;: &#39;world&#39;}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">({</span><span class="s1">&#39;hello&#39;</span><span class="p">:</span> <span class="s1">&#39;world&#39;</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">print_dict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<span class="go">A literal dict: {&#39;hello&#39;: &#39;world&#39;}</span>
+</pre></div>
+</div>
+<p><cite>d</cite> is not a <cite>dict</cite>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+<p>But you can access the underlying <cite>dict</cite> by calling the <cite>Literal</cite> <cite>d</cite>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="p">()</span>
+<span class="go">{&#39;hello&#39;: &#39;world&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="verb.frozendict">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">verb.</span></span><span class="sig-name descname"><span class="pre">frozendict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/verb.html#frozendict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#verb.frozendict" title="Link to this definition"></a></dt>
+<dd><p>An immutable wrapper around dictionaries that implements the complete
+<code class="xref py py-class docutils literal notranslate"><span class="pre">collections.Mapping</span></code> interface.
+It can be used as a drop-in replacement for dictionaries where immutability
+is desired.
+Adapted from: <a class="reference external" href="https://github.com/slezica/python-frozendict">https://github.com/slezica/python-frozendict</a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="verb.frozendict.dict_cls">
+<span class="sig-name descname"><span class="pre">dict_cls</span></span><a class="headerlink" href="#verb.frozendict.dict_cls" title="Link to this definition"></a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="verb.mk_command">
+<span class="sig-prename descclassname"><span class="pre">verb.</span></span><span class="sig-name descname"><span class="pre">mk_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expression</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expression</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_of_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FuncOfKey</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/verb.html#mk_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#verb.mk_command" title="Link to this definition"></a></dt>
+<dd><p>Makes a Command object from an expression and a func_of_key (interpreter)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="verb.mk_executer">
+<span class="sig-prename descclassname"><span class="pre">verb.</span></span><span class="sig-name descname"><span class="pre">mk_executer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_of_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FuncOfKey</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/verb.html#mk_executer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#verb.mk_executer" title="Link to this definition"></a></dt>
+<dd><p>Make a function that will take expressions then parse, compile, and execute them.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">func_of_key</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;plus&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;minus&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">execute</span> <span class="o">=</span> <span class="n">mk_executer</span><span class="p">(</span><span class="n">func_of_key</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;3 minus 2 plus 1&#39;</span><span class="p">)</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;9 minus 6&#39;</span><span class="p">)</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="verb.mk_op_applicable_to_multiple_args">
+<span class="sig-prename descclassname"><span class="pre">verb.</span></span><span class="sig-name descname"><span class="pre">mk_op_applicable_to_multiple_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op_func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/verb.html#mk_op_applicable_to_multiple_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#verb.mk_op_applicable_to_multiple_args" title="Link to this definition"></a></dt>
+<dd><p>Make a binary function op_func(a,b) work on with unbounded args (op_func(a,b,c,d…))</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sum_multiple</span> <span class="o">=</span> <span class="n">mk_op_applicable_to_multiple_args</span><span class="p">(</span><span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sum_multiple</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sum_multiple</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sum_multiple</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sum_multiple</span><span class="p">(</span><span class="o">*</span><span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">))</span>
+<span class="go">21</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="verb.reverse_dict">
+<span class="sig-prename descclassname"><span class="pre">verb.</span></span><span class="sig-name descname"><span class="pre">reverse_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/verb.html#reverse_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#verb.reverse_dict" title="Link to this definition"></a></dt>
+<dd><p>A dict obtained from the input mapping by inverting keys and values</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">reverse_dict</span><span class="p">({</span><span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;one&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;three&#39;</span><span class="p">})</span>
+<span class="go">{&#39;one&#39;: 1, &#39;three&#39;: 3}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="verb.str_to_basic_pyobj">
+<span class="sig-prename descclassname"><span class="pre">verb.</span></span><span class="sig-name descname"><span class="pre">str_to_basic_pyobj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x:</span> <span class="pre">~typing.Any,</span> <span class="pre">*,</span> <span class="pre">funcs:</span> <span class="pre">~collections.abc.Iterable[~collections.abc.Callable]</span> <span class="pre">=</span> <span class="pre">[&lt;class</span> <span class="pre">'int'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'float'&gt;,</span> <span class="pre">&lt;built-in</span> <span class="pre">method</span> <span class="pre">__getitem__</span> <span class="pre">of</span> <span class="pre">dict</span> <span class="pre">object&gt;],</span> <span class="pre">pass_on_exceptions:</span> <span class="pre">BaseException</span> <span class="pre">|</span> <span class="pre">~collections.abc.Iterable[BaseException]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'Exception'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#verb.str_to_basic_pyobj" title="Link to this definition"></a></dt>
+<dd><p>Casts to int or float if possible, True or False or None if the (string) ‘True’ or ‘False’, if not, explodes</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="verb.transform_if_possible">
+<span class="sig-prename descclassname"><span class="pre">verb.</span></span><span class="sig-name descname"><span class="pre">transform_if_possible</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x:</span> <span class="pre">~typing.Any,</span> <span class="pre">funcs:</span> <span class="pre">~collections.abc.Iterable[~collections.abc.Callable],</span> <span class="pre">pass_on_exceptions:</span> <span class="pre">BaseException</span> <span class="pre">|</span> <span class="pre">~collections.abc.Iterable[BaseException]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'Exception'&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/verb.html#transform_if_possible"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#verb.transform_if_possible" title="Link to this definition"></a></dt>
+<dd><p>Will try to apply the functions of funcs one by one, returning the value if no errors occur,
+returning x as is if none of the functions  work</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="Welcome to verb’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="verb/tests/misc_test.html" class="btn btn-neutral float-right" title="verb.tests.misc_test" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

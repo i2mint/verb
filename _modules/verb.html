@@ -1,0 +1,626 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>verb &mdash; verb 0.1.14 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=468bc497"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            verb
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../module_docs/verb.html">verb</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../module_docs/verb/tests/misc_test.html">verb.tests.misc_test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../module_docs/verb/util.html">verb.util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">verb</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">verb</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for verb</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Tools to make mini-languages.</span>
+
+<span class="sd">Uses cases: In situations where you want to get some input from a user (from the web,</span>
+<span class="sd">in a command line, etc.) that specifies a computation to be carried out, you know</span>
+<span class="sd">(right) that you definitely shouldn&#39;t resort to using `eval` or `exec`.</span>
+<span class="sd">Because it&#39;s dangerous for everyone involved -- let&#39;s just not go there.</span>
+
+<span class="sd">`verb` offers an alternative: Easily building minilanguages that will allow the user</span>
+<span class="sd">to only execute the functions you choose, through a vocabulary you choose,</span>
+<span class="sd">and everyone can go home (as) safe (as you allow).</span>
+
+<span class="sd">Do things like this:</span>
+
+<span class="sd">&gt;&gt;&gt; from verb import mk_executer</span>
+<span class="sd">&gt;&gt;&gt;</span>
+<span class="sd">&gt;&gt;&gt; func_of_key = {</span>
+<span class="sd">...     &#39;plus&#39;: lambda x, y: x + y,</span>
+<span class="sd">...     &#39;minus&#39;: lambda x, y: x - y,</span>
+<span class="sd">... }</span>
+<span class="sd">&gt;&gt;&gt;</span>
+<span class="sd">&gt;&gt;&gt;</span>
+<span class="sd">&gt;&gt;&gt; execute = mk_executer(func_of_key)</span>
+<span class="sd">&gt;&gt;&gt; execute(&#39;3 minus 2 plus 1&#39;)</span>
+<span class="sd">2</span>
+<span class="sd">&gt;&gt;&gt; execute(&#39;9 minus 6&#39;)</span>
+<span class="sd">3</span>
+
+<span class="sd">In a nutshell, you make a key-to-func mapping (or use the default):</span>
+
+<span class="sd">&gt;&gt;&gt; import operator as o</span>
+<span class="sd">&gt;&gt;&gt; from verb import *</span>
+<span class="sd">&gt;&gt;&gt; func_of_key = {  # Note: Order represents precedence!</span>
+<span class="sd">...     &#39;-&#39;: o.sub,</span>
+<span class="sd">...     &#39;+&#39;: o.add,</span>
+<span class="sd">...     &#39;*&#39;: o.mul,</span>
+<span class="sd">...     &#39;/&#39;: o.truediv,</span>
+<span class="sd">... }</span>
+
+<span class="sd">Now you have a minilanguage! Out-of-the-box it will allow you to &quot;speak it in string&quot;</span>
+<span class="sd">or &quot;speak it in json/dict&quot;, but you can extend to enable the language to be written in</span>
+<span class="sd">any container you want.</span>
+
+<span class="sd">If you give it a &quot;command string&quot;:</span>
+
+<span class="sd">&gt;&gt;&gt; from verb import mk_command</span>
+<span class="sd">&gt;&gt;&gt; command_str = &#39;1 + 2 - 3 * 4 / 8&#39;</span>
+<span class="sd">&gt;&gt;&gt; command = mk_command(command_str, func_of_key)</span>
+
+<span class="sd">It will use `func_of_key` to both parse it and replace the keys with an indication</span>
+<span class="sd">that the corresponding function should be called.</span>
+<span class="sd">`command` is a callable object, and when you call it, it executes it&#39;s instructions.</span>
+
+<span class="sd">&gt;&gt;&gt; command()</span>
+<span class="sd">1.5</span>
+
+<span class="sd">It may be useful to see what the operation structure looks like</span>
+
+<span class="sd">&gt;&gt;&gt; d = command.to_dict()</span>
+<span class="sd">&gt;&gt;&gt; d</span>
+<span class="sd">{&#39;-&#39;: ({&#39;+&#39;: (1, 2)}, {&#39;*&#39;: (3, {&#39;/&#39;: (4, 8)})})}</span>
+
+<span class="sd">Or if you read better with indents</span>
+
+<span class="sd">&gt;&gt;&gt; from lined import Pipe; import json; from functools import partial</span>
+<span class="sd">&gt;&gt;&gt; print_jdict = Pipe(partial(json.dumps, indent=2), print)</span>
+<span class="sd">&gt;&gt;&gt; print_jdict(d)</span>
+<span class="sd">{</span>
+<span class="sd">  &quot;-&quot;: [</span>
+<span class="sd">    {</span>
+<span class="sd">      &quot;+&quot;: [</span>
+<span class="sd">        1,</span>
+<span class="sd">        2</span>
+<span class="sd">      ]</span>
+<span class="sd">    },</span>
+<span class="sd">    {</span>
+<span class="sd">      &quot;*&quot;: [</span>
+<span class="sd">        3,</span>
+<span class="sd">        {</span>
+<span class="sd">          &quot;/&quot;: [</span>
+<span class="sd">            4,</span>
+<span class="sd">            8</span>
+<span class="sd">          ]</span>
+<span class="sd">        }</span>
+<span class="sd">      ]</span>
+<span class="sd">    }</span>
+<span class="sd">  ]</span>
+<span class="sd">}</span>
+
+<span class="sd">That same dict can be used as a parameter to make the same command</span>
+
+<span class="sd">&gt;&gt;&gt; command = mk_command(d, func_of_key)</span>
+<span class="sd">&gt;&gt;&gt; command()</span>
+<span class="sd">1.5</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">reduce</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Optional</span><span class="p">,</span>
+    <span class="n">Union</span><span class="p">,</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">TypeVar</span><span class="p">,</span>
+    <span class="n">NewType</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">operator</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">o</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">lined</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipe</span> <span class="k">as</span> <span class="n">P</span><span class="p">,</span> <span class="n">iterize</span> <span class="k">as</span> <span class="n">I</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">lined.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">expanded_args</span>
+
+<span class="n">PI</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>  <span class="c1"># you like? Well, too bad! I think it&#39;s cute and useful!</span>
+
+<span class="n">no_default</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="s1">&#39;no_default&#39;</span><span class="p">,</span> <span class="p">(),</span> <span class="p">{})()</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;T&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="frozendict">
+<a class="viewcode-back" href="../module_docs/verb.html#verb.frozendict">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">frozendict</span><span class="p">(</span><span class="n">Mapping</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An immutable wrapper around dictionaries that implements the complete</span>
+<span class="sd">    :py:class:`collections.Mapping` interface.</span>
+<span class="sd">    It can be used as a drop-in replacement for dictionaries where immutability</span>
+<span class="sd">    is desired.</span>
+<span class="sd">    Adapted from: https://github.com/slezica/python-frozendict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">dict_cls</span> <span class="o">=</span> <span class="nb">dict</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict_cls</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hash</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dict</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">add_or_replace</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">add_or_replace</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dict</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dict</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;</span><span class="si">{}</span><span class="s1"> </span><span class="si">{!r}</span><span class="s1">&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dict</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">h</span> <span class="o">^=</span> <span class="nb">hash</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_hash</span> <span class="o">=</span> <span class="n">h</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">first</span><span class="p">(</span><span class="n">iterable</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">iterable</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="transform_if_possible">
+<a class="viewcode-back" href="../module_docs/verb.html#verb.transform_if_possible">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">transform_if_possible</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">funcs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Callable</span><span class="p">],</span>
+    <span class="n">pass_on_exceptions</span><span class="p">:</span> <span class="ne">BaseException</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]</span> <span class="o">=</span> <span class="ne">Exception</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Will try to apply the functions of funcs one by one, returning the value if no errors occur,</span>
+<span class="sd">    returning x as is if none of the functions  work</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">funcs</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">pass_on_exceptions</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">x</span></div>
+
+
+
+<span class="n">str_to_basic_pyobj</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
+    <span class="n">transform_if_possible</span><span class="p">,</span>
+    <span class="n">funcs</span><span class="o">=</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;True&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;False&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">,],</span>
+<span class="p">)</span>
+<span class="n">str_to_basic_pyobj</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;Casts to int or float if possible, True or False or None if the (string) &#39;True&#39; or &#39;False&#39;, if not, explodes&quot;</span>
+<span class="k">assert</span> <span class="nb">list</span><span class="p">(</span>
+    <span class="nb">map</span><span class="p">(</span><span class="n">str_to_basic_pyobj</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;3.14&#39;</span><span class="p">,</span> <span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="s1">&#39;False&#39;</span><span class="p">,</span> <span class="s1">&#39;something else&#39;</span><span class="p">])</span>
+<span class="p">)</span> <span class="o">==</span> <span class="p">[</span><span class="mf">3.14</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;something else&#39;</span><span class="p">]</span>
+
+<span class="n">dflt_leaf_processor</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">strip</span><span class="p">,</span> <span class="n">str_to_basic_pyobj</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">name_func</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name_attr</span><span class="o">=</span><span class="s1">&#39;_name&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nb">setattr</span><span class="p">(</span><span class="n">_func</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_func</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">add_key_as_func_attr</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">name_attr</span><span class="o">=</span><span class="s1">&#39;_name&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">name_func</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+
+<div class="viewcode-block" id="mk_op_applicable_to_multiple_args">
+<a class="viewcode-back" href="../module_docs/verb.html#verb.mk_op_applicable_to_multiple_args">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mk_op_applicable_to_multiple_args</span><span class="p">(</span><span class="n">op_func</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make a binary function op_func(a,b) work on with unbounded args (op_func(a,b,c,d...))</span>
+
+<span class="sd">    &gt;&gt;&gt; sum_multiple = mk_op_applicable_to_multiple_args(lambda a, b: a + b)</span>
+<span class="sd">    &gt;&gt;&gt; sum_multiple(1)</span>
+<span class="sd">    1</span>
+<span class="sd">    &gt;&gt;&gt; sum_multiple(1,2)</span>
+<span class="sd">    3</span>
+<span class="sd">    &gt;&gt;&gt; sum_multiple(1,2,3,4)</span>
+<span class="sd">    10</span>
+<span class="sd">    &gt;&gt;&gt; sum_multiple(*range(7))</span>
+<span class="sd">    21</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">expanded_args</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">reduce</span><span class="p">,</span> <span class="n">op_func</span><span class="p">))</span></div>
+
+
+
+<span class="n">dflt_func_of_key</span> <span class="o">=</span> <span class="n">frozendict</span><span class="p">(</span>
+    <span class="p">{</span>  <span class="c1"># Note: Order represents precedence!</span>
+        <span class="c1"># an and function that will work with multiple inputs, not just two (and(x,y,z,...))</span>
+        <span class="s1">&#39;&amp;&#39;</span><span class="p">:</span> <span class="n">mk_op_applicable_to_multiple_args</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">and_</span><span class="p">),</span>
+        <span class="s1">&#39;|&#39;</span><span class="p">:</span> <span class="n">mk_op_applicable_to_multiple_args</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">or_</span><span class="p">),</span>
+        <span class="s1">&#39;==&#39;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">eq</span><span class="p">,</span>
+        <span class="s1">&#39;!=&#39;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">ne</span><span class="p">,</span>
+        <span class="s1">&#39;&lt;=&#39;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">le</span><span class="p">,</span>
+        <span class="s1">&#39;&gt;=&#39;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">ge</span><span class="p">,</span>
+        <span class="s1">&#39;&lt;&#39;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">lt</span><span class="p">,</span>
+        <span class="s1">&#39;&gt;&#39;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">gt</span><span class="p">,</span>
+        <span class="s1">&#39;-&#39;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">sub</span><span class="p">,</span>
+        <span class="s1">&#39;+&#39;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">add</span><span class="p">,</span>
+        <span class="s1">&#39;*&#39;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">mul</span><span class="p">,</span>
+        <span class="s1">&#39;/&#39;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">truediv</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="n">dflt_func_of_key</span> <span class="o">=</span> <span class="n">frozendict</span><span class="p">(</span><span class="n">add_key_as_func_attr</span><span class="p">(</span><span class="n">dflt_func_of_key</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="reverse_dict">
+<a class="viewcode-back" href="../module_docs/verb.html#verb.reverse_dict">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">reverse_dict</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A dict obtained from the input mapping by inverting keys and values</span>
+
+<span class="sd">    &gt;&gt;&gt; reverse_dict({1: &#39;one&#39;, 3: &#39;three&#39;})</span>
+<span class="sd">    {&#39;one&#39;: 1, &#39;three&#39;: 3}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">identity</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span>
+
+
+<div class="viewcode-block" id="Literal">
+<a class="viewcode-back" href="../module_docs/verb.html#verb.Literal">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Literal</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wraps an object to distinguish it from other objects of the same type.</span>
+<span class="sd">    Call the Literal instance to get the original object</span>
+
+<span class="sd">    &gt;&gt;&gt; def print_dict(d):</span>
+<span class="sd">    ...     if isinstance(d, dict):</span>
+<span class="sd">    ...         print(f&quot;A dict: {d}&quot;)</span>
+<span class="sd">    ...     else:</span>
+<span class="sd">    ...         print(f&quot;A literal dict: {d()}&quot;)  # note the parentheses after d!</span>
+<span class="sd">    &gt;&gt;&gt; d = {&#39;hello&#39;: &#39;world&#39;}</span>
+<span class="sd">    &gt;&gt;&gt; print_dict({&#39;hello&#39;: &#39;world&#39;})</span>
+<span class="sd">    A dict: {&#39;hello&#39;: &#39;world&#39;}</span>
+<span class="sd">    &gt;&gt;&gt; d = Literal({&#39;hello&#39;: &#39;world&#39;})</span>
+<span class="sd">    &gt;&gt;&gt; print_dict(d)</span>
+<span class="sd">    A literal dict: {&#39;hello&#39;: &#39;world&#39;}</span>
+
+<span class="sd">    `d` is not a `dict`:</span>
+
+<span class="sd">    &gt;&gt;&gt; isinstance(d, dict)</span>
+<span class="sd">    False</span>
+
+<span class="sd">    But you can access the underlying `dict` by calling the `Literal` `d`:</span>
+
+<span class="sd">    &gt;&gt;&gt; d()</span>
+<span class="sd">    {&#39;hello&#39;: &#39;world&#39;}</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">obj</span></div>
+
+
+
+<span class="n">KT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;KT&#39;</span><span class="p">)</span>
+
+<span class="n">Expression</span> <span class="o">=</span> <span class="n">NewType</span><span class="p">(</span><span class="s1">&#39;Expression&#39;</span><span class="p">,</span> <span class="n">Any</span><span class="p">)</span>
+<span class="n">Expression</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s1">&#39;An object that expresses a command&#39;</span>
+<span class="n">FuncOfKey</span> <span class="o">=</span> <span class="n">NewType</span><span class="p">(</span><span class="s1">&#39;FuncOfKey&#39;</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">KT</span><span class="p">,</span> <span class="n">Callable</span><span class="p">])</span>
+<span class="n">FuncOfKey</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s1">&#39;A `Mapping` of keys (`KT`) to Callables that they represent. &#39;</span>
+    <span class="s1">&#39;Specifies an interpreter by specifying both parser and compiler.&#39;</span>
+<span class="p">)</span>
+<span class="n">KeyOfFunc</span> <span class="o">=</span> <span class="n">NewType</span><span class="p">(</span><span class="s1">&#39;KeyOfFunc&#39;</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">Callable</span><span class="p">,</span> <span class="n">KT</span><span class="p">])</span>
+<span class="n">KeyOfFunc</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s1">&#39;A `Mapping` of Callables to keys (KT). The inverse of a `FuncOfKey`&#39;</span>
+<span class="p">)</span>
+<span class="n">FuncOfStrKey</span> <span class="o">=</span> <span class="n">NewType</span><span class="p">(</span><span class="s1">&#39;FuncOfStrKey&#39;</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">])</span>
+<span class="n">FuncOfStrKey</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s1">&#39;A specialization of a `FuncOfKey` where keys are strings&#39;</span>
+<span class="n">CommandDict</span> <span class="o">=</span> <span class="n">NewType</span><span class="p">(</span><span class="s1">&#39;CommandDict&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>  <span class="c1"># and should be size 1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">func</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="mk_executer">
+<a class="viewcode-back" href="../module_docs/verb.html#verb.mk_executer">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mk_executer</span><span class="p">(</span><span class="n">func_of_key</span><span class="p">:</span> <span class="n">FuncOfKey</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make a function that will take expressions then parse, compile, and execute them.</span>
+
+<span class="sd">    &gt;&gt;&gt; func_of_key = {</span>
+<span class="sd">    ...     &#39;plus&#39;: lambda x, y: x + y,</span>
+<span class="sd">    ...     &#39;minus&#39;: lambda x, y: x - y,</span>
+<span class="sd">    ... }</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; execute = mk_executer(func_of_key)</span>
+<span class="sd">    &gt;&gt;&gt; execute(&#39;3 minus 2 plus 1&#39;)</span>
+<span class="sd">    2</span>
+<span class="sd">    &gt;&gt;&gt; execute(&#39;9 minus 6&#39;)</span>
+<span class="sd">    3</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">P</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">mk_command</span><span class="p">,</span> <span class="n">func_of_key</span><span class="o">=</span><span class="n">func_of_key</span><span class="p">),</span> <span class="n">call</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="mk_command">
+<a class="viewcode-back" href="../module_docs/verb.html#verb.mk_command">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mk_command</span><span class="p">(</span><span class="n">expression</span><span class="p">:</span> <span class="n">Expression</span><span class="p">,</span> <span class="n">func_of_key</span><span class="p">:</span> <span class="n">FuncOfKey</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Makes a Command object from an expression and a func_of_key (interpreter)&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Command</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">func_of_key</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Command">
+<a class="viewcode-back" href="../module_docs/verb.html#verb.Command">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">unsafe_hash</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Command</span><span class="p">:</span>
+    <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">|</span> <span class="n">Expression</span> <span class="o">=</span> <span class="n">identity</span>
+    <span class="n">args</span><span class="p">:</span> <span class="n">Iterable</span> <span class="o">|</span> <span class="n">FuncOfKey</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">_func_of_key</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+            <span class="n">func_of_key</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">args</span><span class="p">),</span> <span class="n">dflt_func_of_key</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_func_of_key</span> <span class="o">=</span> <span class="n">func_of_key</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">command</span> <span class="o">=</span> <span class="n">Command</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">func_of_key</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">command</span> <span class="o">=</span> <span class="n">Command</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">func_of_key</span><span class="p">)</span>
+            <span class="n">func</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">command</span><span class="o">.</span><span class="n">args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">arg_execution_gen</span><span class="p">())</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">arg_execution_gen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">Command</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">arg</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">arg</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key_of_func</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key_of_func</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func_of_key</span><span class="p">:</span>
+            <span class="n">key_of_func</span> <span class="o">=</span> <span class="n">reverse_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_func_of_key</span><span class="p">)</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span>
+        <span class="k">if</span> <span class="n">func</span> <span class="ow">in</span> <span class="p">(</span><span class="n">key_of_func</span> <span class="ow">or</span> <span class="p">{}):</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="n">key_of_func</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">]</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">process_args</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">Command</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">arg</span><span class="o">.</span><span class="n">func</span> <span class="o">==</span> <span class="n">identity</span><span class="p">:</span>
+                        <span class="k">yield</span> <span class="n">arg</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">yield</span> <span class="n">arg</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">key_of_func</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">arg</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="n">func</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">process_args</span><span class="p">())}</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">diagnose_func_of_key</span><span class="p">(</span><span class="n">func_of_key</span><span class="p">):</span>
+        <span class="n">non_callable_vals</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">func</span> <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">func_of_key</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">Callable</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">non_callable_vals</span><span class="p">:</span>  <span class="c1"># if there are any values that are not callable</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;All values of FuncOfKey/FuncOfStrKey must be callable, these weren&#39;t: &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">non_callable_vals</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+<div class="viewcode-block" id="Command.from_dict">
+<a class="viewcode-back" href="../module_docs/verb.html#verb.Command.from_dict">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">CommandDict</span><span class="p">,</span> <span class="n">func_of_key</span><span class="p">:</span> <span class="n">FuncOfKey</span><span class="p">,</span> <span class="n">diagnose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Make a command from a dict specification</span>
+<span class="sd">        If func_of_key is not given, the keys</span>
+
+<span class="sd">        &gt;&gt;&gt; assert Command.parse_to_dict(</span>
+<span class="sd">        ...     &#39;machine == crane &amp; rpm &gt;= 3 &amp; pressure &lt; 21.2&#39;, dflt_func_of_key) == (</span>
+<span class="sd">        ...    {&#39;&amp;&#39;: [{&#39;==&#39;: [&#39;machine&#39;, &#39;crane&#39;]},</span>
+<span class="sd">        ...           {&#39;&gt;=&#39;: [&#39;rpm&#39;, 3]},</span>
+<span class="sd">        ...           {&#39;&lt;&#39;: [&#39;pressure&#39;, 21.2]}]}</span>
+<span class="sd">        ... )</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">diagnose</span><span class="p">:</span>
+            <span class="n">Command</span><span class="o">.</span><span class="n">diagnose_func_of_key</span><span class="p">(</span><span class="n">func_of_key</span><span class="p">)</span>
+        <span class="n">is_command_dict</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">first</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">in</span> <span class="n">func_of_key</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">is_command_dict</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Must be a command dict. That is, a nested dict of size one (a single root, whose key represents a func) &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;(the last operation of the command): </span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
+        <span class="n">func</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="n">first</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">func_of_key</span><span class="p">[</span><span class="n">func</span><span class="p">]</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">gen</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">is_command_dict</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="n">Command</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">func_of_key</span><span class="p">,</span> <span class="n">diagnose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">Literal</span><span class="p">):</span>
+                    <span class="n">literal_underlying_value</span> <span class="o">=</span> <span class="n">arg</span><span class="p">()</span>
+                    <span class="k">yield</span> <span class="n">Command</span><span class="p">(</span><span class="n">identity</span><span class="p">,</span> <span class="n">literal_underlying_value</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">Command</span><span class="p">(</span><span class="n">identity</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">gen</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Command.from_string">
+<a class="viewcode-back" href="../module_docs/verb.html#verb.Command.from_string">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_string</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">func_of_key</span><span class="p">:</span> <span class="n">FuncOfStrKey</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">str_preprocessor</span><span class="o">=</span><span class="nb">str</span><span class="o">.</span><span class="n">strip</span><span class="p">,</span>
+        <span class="n">leaf_processor</span><span class="o">=</span><span class="n">str_to_basic_pyobj</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Make a Command object from a string</span>
+
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="n">str_preprocessor</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
+            <span class="n">Command</span><span class="o">.</span><span class="n">from_string</span><span class="p">,</span>
+            <span class="n">func_of_key</span><span class="o">=</span><span class="n">func_of_key</span><span class="p">,</span>
+            <span class="n">str_preprocessor</span><span class="o">=</span><span class="n">str_preprocessor</span><span class="p">,</span>
+            <span class="n">leaf_processor</span><span class="o">=</span><span class="n">leaf_processor</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">func_of_key</span> <span class="o">=</span> <span class="n">func_of_key</span> <span class="ow">or</span> <span class="n">dflt_func_of_key</span>
+        <span class="k">for</span> <span class="n">sep</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">func_of_key</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="n">str_preprocessor</span><span class="p">,</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">Command</span><span class="p">(</span><span class="n">func_of_key</span><span class="p">[</span><span class="n">sep</span><span class="p">],</span> <span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">parts</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">Command</span><span class="p">(</span><span class="n">identity</span><span class="p">,</span> <span class="n">leaf_processor</span><span class="p">(</span><span class="n">string</span><span class="p">))</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">func_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="s1">&#39;_name&#39;</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="s1">&#39;__name__&#39;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+            <span class="n">args_str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">args_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="si">{</span><span class="n">func_name</span><span class="si">}</span><span class="s1">: [</span><span class="si">{</span><span class="n">args_str</span><span class="si">}</span><span class="s1">]</span><span class="se">}}</span><span class="s1">&#39;</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_to_dict</span><span class="p">(</span>
+        <span class="n">string</span><span class="p">,</span>
+        <span class="n">func_of_key</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">str_preprocessor</span><span class="o">=</span><span class="nb">str</span><span class="o">.</span><span class="n">strip</span><span class="p">,</span>
+        <span class="n">leaf_processor</span><span class="o">=</span><span class="n">str_to_basic_pyobj</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">func_of_key</span> <span class="o">=</span> <span class="n">func_of_key</span> <span class="ow">or</span> <span class="n">dflt_func_of_key</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="n">str_preprocessor</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
+            <span class="n">Command</span><span class="o">.</span><span class="n">parse_to_dict</span><span class="p">,</span>
+            <span class="n">func_of_key</span><span class="o">=</span><span class="n">func_of_key</span><span class="p">,</span>
+            <span class="n">str_preprocessor</span><span class="o">=</span><span class="n">str_preprocessor</span><span class="p">,</span>
+            <span class="n">leaf_processor</span><span class="o">=</span><span class="n">leaf_processor</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">sep</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">func_of_key</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="n">str_preprocessor</span><span class="p">,</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">{</span><span class="n">sep</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">parts</span><span class="p">))}</span>
+        <span class="k">return</span> <span class="n">leaf_processor</span><span class="p">(</span><span class="n">string</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
